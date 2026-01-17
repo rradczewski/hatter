@@ -17,6 +17,7 @@ env:
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
 
+
 jobs:
   list-hats:
     runs-on: ubuntu-latest
@@ -45,9 +46,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Retrieve Fedora Image Information
+        id: fedora
+        run: |
+          skopeo inspect \
+            docker://quay.io/fedora/fedora-silverblue:43 \
+            --format "fedora-digest={{ .Digest }}\nfedora-version={{ index .Labels \"org.opencontainers.image.version\" }}" \
+            | tee "$GITHUB_OUTPUT"
+
       - name: Generate trunkver
         id: trunkver
         uses: crftd-tech/trunkver@main
+        with:
+          baseVersion: ${{ steps.fedora.outputs.fedora-version }}
+          prerelease: true
 
       - run: bash make.sh
 
@@ -79,6 +91,10 @@ jobs:
           layers: true
           containerfiles: |
             ./out/${{ matrix.hat }}.Containerfile
+          build-args: |
+            HAT=${{ matrix.hat }}
+            VERSION=${{ steps.trunkver.outputs.trunkver }}
+            FEDORA_DIGEST=${{ steps.fedora.outputs.fedora-digest }}
           extra-args: |
             --cache-from=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
             --cache-to=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
