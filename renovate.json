@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:enableMajor",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "dependencyDashboard": true,
+  "automerge": true,
+  "automergeType": "branch",
+  "packageRules": [
+    {
+      "matchFileNames": [
+        ".github/**",
+        ".github/*"
+      ],
+      "minimumReleaseAge": "30 days"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update Fedora base image based on endoflife-date",
+      "managerFilePatterns": [
+        ".github/workflows/*.yml"
+      ],
+      "matchStrings": [
+        "FEDORA_BASE_IMAGE: quay.io/fedora/fedora-silverblue:(?<currentValue>[^\\s]+).*\\n"
+      ],
+      "versioningTemplate": "loose",
+      "datasourceTemplate": "endoflife-date",
+      "depNameTemplate": "fedora"
+    }
+  ]
+}

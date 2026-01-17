@@ -16,6 +16,7 @@ env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
+  FEDORA_BASE_IMAGE: quay.io/fedora/fedora-silverblue:43
 
 
 jobs:
@@ -50,7 +51,7 @@ jobs:
         id: fedora
         run: |
           skopeo inspect \
-            docker://quay.io/fedora/fedora-silverblue:43 \
+            docker://${{ env.FEDORA_BASE_IMAGE }} \
             --format "fedora-digest={{ .Digest }}\nfedora-version={{ index .Labels \"org.opencontainers.image.version\" }}" \
             | tee "$GITHUB_OUTPUT"
 
@@ -94,7 +95,7 @@ jobs:
           build-args: |
             HAT=${{ matrix.hat }}
             VERSION=${{ steps.trunkver.outputs.trunkver }}
-            FEDORA_DIGEST=${{ steps.fedora.outputs.fedora-digest }}
+            BASE_IMAGE=${{ steps.fedora.outputs.fedora-digest }}@${{ steps.fedora.outputs.fedora-digest }}
           extra-args: |
             --cache-from=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
             --cache-to=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache

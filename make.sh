@@ -17,8 +17,8 @@ make_containerfile() {
     local TARGET_FILE="$OUTDIR/$HAT.Containerfile"
 
     cat <<EOF > "$TARGET_FILE"
-ARG FEDORA_DIGEST
-FROM quay.io/fedora/fedora-silverblue:43@\$FEDORA_DIGEST
+ARG BASE_IMAGE
+FROM \$BASE_IMAGE
 
 $(find "${BASEDIR}/_common/" -name *.snippet.Containerfile -printf '# '_common/'%f\n' -exec cat {} \; -printf '\n')
 
