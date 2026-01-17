@@ -8,7 +8,7 @@ OUTDIR="${BASEDIR}/out"
 list_hats() {
     find "$BASEDIR" \
         -maxdepth 1 -mindepth 1 \
-        -type d -not -name _common -not -name .git -not -name out \
+        -type d -not -name .github  -not -name _common -not -name .git -not -name out \
         -printf '%f\n'
 }
 
