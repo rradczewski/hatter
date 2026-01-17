@@ -27,11 +27,13 @@ jobs:
       - run: bash make.sh
       - id: set-matrix
         run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name .github -not -name _common -not -name .git -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
+
   build-image:
     name: Build and push image
     needs: [list-hats]
     runs-on: ubuntu-latest
     strategy:
+        max-parallel: 1
         matrix:
             hat: ${{ fromJson(needs.list-hats.outputs.matrix) }}
     env:
