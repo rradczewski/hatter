@@ -1,0 +1,103 @@
+name: Build hats
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  id-token: write
+  attestations: write
+
+env:
+  IMAGE_BASE_NAME: ${{ github.event.repository.name }}
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  REGISTRY_USER: ${{ github.actor }}
+  REGISTRY_PASSWORD: ${{ github.token }}
+
+jobs:
+  list-hats:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash make.sh
+      - id: set-matrix
+        run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name _common -not -name .git -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
+  build-image:
+    name: Build and push image
+    needs: [list-hats]
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            hat: ${{ fromJson(needs.list-hats.outputs.matrix) }}
+    env:
+      IMAGE_NAME: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.hat }}"
+    outputs:
+      registry-path: ${{ steps.push.outputs.registry-path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate trunkver
+        id: trunkver
+        uses: crftd-tech/trunkver@main
+
+      - run: bash make.sh
+
+      - name: Docker Metadata
+        id: docker-metadata
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=edge
+            type=semver,value=${{ steps.trunkver.outputs.trunkver }},pattern={{version}}
+
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          registry: ${{ env.IMAGE_REGISTRY }}
+
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ steps.docker-metadata.outputs.tags }}
+          labels: ${{ steps.docker-metadata.outputs.labels }}
+          oci: true
+          layers: true
+          containerfiles: |
+            ./out/${{ matrix.hat }}.Containerfile
+          extra-args: |
+            --cache-from=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
+            --cache-to=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
+
+      - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
+        id: push
+        with:
+          tags: ${{ steps.build_image.outputs.tags }}
+
+      - name: Setup cosign
+        uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
+        with:
+          cosign-release: "v2.6.0"
+      - name: Sign docker image
+        run: cosign sign --yes ${REGISTRY_PATH}@${DIGEST}
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+          REGISTRY_PATH: ${{ steps.push.outputs.registry-path }}
+
+
+      - name: Echo outputs
+        run: |
+          echo "${{ toJSON(steps.push.outputs) }}"
