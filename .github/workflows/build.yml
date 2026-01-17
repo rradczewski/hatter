@@ -82,9 +82,9 @@ jobs:
       - name: Restore production keys
         if: github.ref == 'refs/heads/main'
         run: |
-          mkdir /tmp/kernel_signing_key/
-          echo "$KERNEL_SIGNING_CERTIFICATE_PEM" > /tmp/kernel_signing_key/kernel_signing_certificate_key.pem
-          echo "$KERNEL_SIGNING_CERTIFICATE_KEY" > /tmp/kernel_signing_key/kernel_signing_certificate_key.key
+          mkdir -p ./tmp/kernel_signing_key/ || true
+          echo "$KERNEL_SIGNING_CERTIFICATE_PEM" > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
+          echo "$KERNEL_SIGNING_CERTIFICATE_KEY" > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
         env:
           KERNEL_SIGNING_CERTIFICATE_PEM: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_PEM }}
           KERNEL_SIGNING_CERTIFICATE_KEY: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_KEY }}
@@ -92,9 +92,9 @@ jobs:
       - name: Generate throaway temp keys for anyone else
         if: github.ref != 'refs/heads/main'
         run: |
-          openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 > /tmp/kernel_signing_key/kernel_signing_certificate_key.pem
-          openssl req -x509 -key /tmp/kernel_signing_key/kernel_signing_certificate_key.pem -subj /CN=github.com/CN=rradczewski/CN=hatter/CN=CI_THROAWAY_KEY_DO_NOT_TRUST > /tmp/kernel_signing_key/kernel_signing_certificate_key.pem
-          openssl x509 -in /tmp/kernel_signing_key/kernel_signing_certificate_key.pem -inform PEM -out /tmp/kernel_signing_key/kernel_signing_certificate_key.der -outform DER
+          openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
+          openssl req -x509 -key ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem -subj /CN=github.com/CN=rradczewski/CN=hatter/CN=CI_THROAWAY_KEY_DO_NOT_TRUST > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
+          openssl x509 -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem -inform PEM -out ./tmp/kernel_signing_key/kernel_signing_certificate_key.der -outform DER
 
       - name: Build Image
         id: build_image
