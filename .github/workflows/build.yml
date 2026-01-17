@@ -3,8 +3,6 @@ on:
   schedule:
     - cron: "0 0 * * 0"
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -101,22 +99,26 @@ jobs:
             --cache-to=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
 
       - name: Push To GHCR
+        if: github.ref == 'refs/heads/main'
         uses: redhat-actions/push-to-registry@v2
         id: push
         with:
           tags: ${{ steps.build_image.outputs.tags }}
 
       - name: Setup cosign
+        if: github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
         with:
           cosign-release: "v2.6.0"
+
       - name: Sign docker image
+        if: github.ref == 'refs/heads/main'
         run: cosign sign --yes ${REGISTRY_PATH}@${DIGEST}
         env:
           DIGEST: ${{ steps.push.outputs.digest }}
           REGISTRY_PATH: ${{ steps.push.outputs.registry-path }}
 
-
       - name: Echo outputs
+        if: github.ref == 'refs/heads/main'
         run: |
           echo "${{ toJSON(steps.push.outputs) }}"
