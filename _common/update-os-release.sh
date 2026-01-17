@@ -15,12 +15,8 @@ VERSION="${VERSION:-00.00000000}"
 sed -i "s|^PRETTY_NAME=.*|PRETTY_NAME=\"${IMAGE_PRETTY_NAME} (Version: ${VERSION})\"|" /usr/lib/os-release
 sed -i "s|^NAME=.*|NAME=\"$IMAGE_PRETTY_NAME\"|" /usr/lib/os-release
 sed -i "s|^HOME_URL=.*|HOME_URL=\"$HOME_URL\"|" /usr/lib/os-release
-sed -i "s|^VERSION=.*|VERSION=\"${VERSION} (${BASE_IMAGE_NAME^})\"|" /usr/lib/os-release
+sed -i "s|^VERSION=.*|VERSION=\"${VERSION}\"|" /usr/lib/os-release
 sed -i "s|^OSTREE_VERSION=.*|OSTREE_VERSION=\'${VERSION}\'|" /usr/lib/os-release
-
-if [[ -n "${SHA_HEAD_SHORT:-}" ]]; then
-  echo "BUILD_ID=\"$SHA_HEAD_SHORT\"" >>/usr/lib/os-release
-fi
 
 # Added in systemd 249.
 # https://www.freedesktop.org/software/systemd/man/latest/os-release.html#IMAGE_ID=
