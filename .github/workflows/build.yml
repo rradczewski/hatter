@@ -23,7 +23,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: bash make.sh
       - id: set-matrix
         run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name .github -not -name _common -not -name .git -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
@@ -43,7 +43,7 @@ jobs:
       registry-path: ${{ steps.push.outputs.registry-path }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Retrieve Fedora Image Information
         id: fedora
