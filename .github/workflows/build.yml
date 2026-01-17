@@ -13,7 +13,6 @@ permissions:
   attestations: write
 
 env:
-  IMAGE_BASE_NAME: ${{ github.event.repository.name }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
@@ -36,7 +35,8 @@ jobs:
         matrix:
             hat: ${{ fromJson(needs.list-hats.outputs.matrix) }}
     env:
-      IMAGE_NAME: "${{ env.IMAGE_BASE_NAME }}/${{ matrix.hat }}"
+      IMAGE_NAME: "${{ github.event.repository.name }}/${{ matrix.hat }}"
+
     outputs:
       registry-path: ${{ steps.push.outputs.registry-path }}
     steps:
