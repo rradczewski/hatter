@@ -32,6 +32,7 @@ jobs:
     name: Build and push image
     needs: [list-hats]
     runs-on: ubuntu-latest
+    environment: main
     strategy:
         max-parallel: 1
         matrix:
@@ -85,9 +86,6 @@ jobs:
           mkdir -p ./tmp/kernel_signing_key/ || true
           echo "$KERNEL_SIGNING_CERTIFICATE_PEM" > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
           echo "$KERNEL_SIGNING_CERTIFICATE_KEY" > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
-          sha256sum ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
-          sha256sum ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
-
         env:
           KERNEL_SIGNING_CERTIFICATE_PEM: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_PEM }}
           KERNEL_SIGNING_CERTIFICATE_KEY: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_KEY }}
