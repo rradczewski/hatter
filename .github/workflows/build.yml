@@ -32,7 +32,6 @@ jobs:
     name: Build and push image
     needs: [list-hats]
     runs-on: ubuntu-latest
-    environment: main
     strategy:
         max-parallel: 1
         matrix:
