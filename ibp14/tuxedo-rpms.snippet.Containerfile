@@ -13,5 +13,5 @@ RUN \
 	--mount=type=bind,source=./tmp/kernel_signing_key/kernel_signing_certificate_key.key,destination=/var/lib/dkms/mok.key,z \
 	--mount=type=cache,dst=/var/cache/dnf \
     --mount=type=cache,dst=/var/cache/libdnf5 \
-	dnf install -y tuxedo-yt6801 --setopt=tsflags=noscripts \
+	dnf install -y tuxedo-yt6801-0:1.0.30tux5-1 --setopt=tsflags=noscripts \
 	&& dkms install -k $(rpm -q kernel | cut -d- -f2-) tuxedo-yt6801/$(rpm -q --queryformat '%{VERSION}' tuxedo-yt6801)
