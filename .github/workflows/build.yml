@@ -92,6 +92,7 @@ jobs:
       - name: Generate throaway temp keys for anyone else
         if: github.ref != 'refs/heads/main'
         run: |
+          mkdir -p ./tmp/kernel_signing_key/ || true
           openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
           openssl req -x509 -key ./tmp/kernel_signing_key/kernel_signing_certificate_key.key -subj /CN=github.com/CN=rradczewski/CN=hatter/CN=CI_THROAWAY_KEY_DO_NOT_TRUST > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
 
