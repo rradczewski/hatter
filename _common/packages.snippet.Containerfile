@@ -15,6 +15,7 @@ RUN \
     powertop \
     tmux \
     vim \
+    gnome-extensions-app \
     gnome-shell-extension-appindicator \
     gnome-shell-extension-no-overview \
     gnome-shell-extension-gsconnect \
