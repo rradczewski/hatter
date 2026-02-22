@@ -10,30 +10,19 @@
 
 set -uexo pipefail
 
-COMMIT_REF=5651436252ce6a34aebf892b663295d9593b50b1
+TMP_DIR=/tmp/nextcloud_desktop/working_directory
 
-mkdir /tmp/nextcloud_desktop 
-curl -L -o /tmp/nextcloud_desktop/nextcloud_desktop.tar.gz https://github.com/nextcloud/desktop/archive/${COMMIT_REF}.tar.gz
-tar -xvz \
-  --strip-components=1 \
-  -C /tmp/nextcloud_desktop \
-  -f /tmp/nextcloud_desktop/nextcloud_desktop.tar.gz 
+mkdir -p "$TMP_DIR" || true
 
-mkdir -p /usr/share/nautilus-python/extensions
-cp /tmp/nextcloud_desktop/shell_integration/nautilus/syncstate.py /usr/share/nautilus-python/extensions
+rpm --install --verbose --hash --nodeps $(dnf repoquery --location nextcloud-client-nautilus | head -n1)
 
-shopt -p
-shopt -s nullglob globstar
-for size in 128x128 16x16 256x256 32x32 48x48 64x64 72x72
-do
-  target=/usr/share/icons/hicolor/${size}/apps
-  mkdir -p "${target}"
-  for icon in /tmp/nextcloud_desktop/shell_integration/icons/${size}/*
-  do
-    basename=$(basename "${icon}")
-    cp "${icon}" "${target}/${basename/oC/Nextcloud}"
-  done
-done
+NEXTCLOUD_CLIENT_RPM=$(dnf repoquery nextcloud-client --latest-limit=1 --queryformat "%{name}-%{evr}.%{arch}")
+
+dnf download --destdir "$TMP_DIR" "$NEXTCLOUD_CLIENT_RPM"
+
+rpm2cpio "${TMP_DIR}/${NEXTCLOUD_CLIENT_RPM}.rpm" \
+    | cpio -imvd \
+        -D / \
+        './usr/share/icons/hicolor/*'
+
 gtk-update-icon-cache -f /usr/share/icons/hicolor/
-
-rm -r /tmp/nextcloud_desktop/
