@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Adapted from:
+# https://github.com/omid-1985/nextcloud-nautilus-integration
 # Installer for "Nextcloud Integration" Nautilus Script
 # Coded by: Omid Khalili inspired by initial work of Philipp Fruck (https://gist.github.com/p-fruck/6ec354da8fb348c19cca013c6c64df76)
 # License: GNU General Public License (GPL) version 3+
@@ -20,8 +22,6 @@ tar -xvz \
 mkdir -p /usr/share/nautilus-python/extensions
 cp /tmp/nextcloud_desktop/shell_integration/nautilus/syncstate.py /usr/share/nautilus-python/extensions
 
-# Step 6: Copy icons to appropriate directories
-echo "Installing icons..."
 shopt -p
 shopt -s nullglob globstar
 for size in 128x128 16x16 256x256 32x32 48x48 64x64 72x72
@@ -34,7 +34,6 @@ do
     cp "${icon}" "${target}/${basename/oC/Nextcloud}"
   done
 done
+gtk-update-icon-cache -f /usr/share/icons/hicolor/
 
-# Step 7: Cleanup
-echo "Cleaning up temporary files..."
 rm -r /tmp/nextcloud_desktop/
