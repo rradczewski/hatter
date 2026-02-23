@@ -101,8 +101,8 @@ jobs:
         run: |
           set -uexo pipefail
           ls -la ./tmp/kernel_signing_key/
-          PUBKEY_FROM_PRIVATE_KEY=$(openssl rsa -pubout -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.key)
-          PUBKEY_FROM_CERTIFICATE=$(openssl x509 -noout  -pubkey -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
+          PUBKEY_FROM_PRIVATE_KEY=$(openssl pkey -pubout -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.key)
+          PUBKEY_FROM_CERTIFICATE=$(openssl x509 -noout -pubkey -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
           if [ "$PUBKEY_FROM_CERTIFICATE" != "$PUBKEY_FROM_PRIVATE_KEY" ];
           then
             echo "Pubkeys don't match"
