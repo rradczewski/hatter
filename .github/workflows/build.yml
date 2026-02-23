@@ -32,6 +32,7 @@ jobs:
     name: Build and push image
     needs: [list-hats]
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'main' || '' }}
     strategy:
         max-parallel: 1
         matrix:
