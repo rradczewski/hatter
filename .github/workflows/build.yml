@@ -96,6 +96,18 @@ jobs:
           openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
           openssl req -x509 -key ./tmp/kernel_signing_key/kernel_signing_certificate_key.key -subj /CN=github.com/CN=rradczewski/CN=hatter/CN=CI_THROAWAY_KEY_DO_NOT_TRUST > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
 
+      - name: Make sure that keypair is valid
+        run: |
+          set -uexo pipefail
+          ls -la ./tmp/kernel_signing_key/
+          PUBKEY_FROM_PRIVATE_KEY=$(openssl rsa -pubout -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.key)
+          PUBKEY_FROM_CERTIFICATE=$(openssl x509 -noout  -pubkey -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
+          if [ "$PUBKEY_FROM_CERTIFICATE" != "$PUBKEY_FROM_PRIVATE_KEY" ];
+          then
+            echo "Pubkeys don't match"
+            exit 1
+          fi
+
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
