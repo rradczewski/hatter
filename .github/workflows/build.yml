@@ -56,7 +56,7 @@ jobs:
 
       - name: Generate trunkver
         id: trunkver
-        uses: crftd-tech/trunkver@66d540d04b6014d6e792a68830efede677de7dd9 # main
+        uses: crftd-tech/trunkver@d0a6bb75c537b2750061f695d378fa437eb765f0 # main
         with:
           baseVersion: ${{ steps.fedora.outputs.fedora-version }}
           prerelease: true
