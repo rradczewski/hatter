@@ -1,0 +1,2 @@
+# Are supposed to help with flicker, but needs dpm set to high too
+kargs = ["amdgpu.abmlevel=0", "amdgpu.sg_display=0", "amdgpu.dcdebugmask=0x410"]
