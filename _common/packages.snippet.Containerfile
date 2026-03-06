@@ -11,6 +11,8 @@ RUN \
     podman-compose \
     btrfs-assistant \
     snapper \
+    pv \
+    mbuffer \
     lm_sensors \
     powertop \
     tmux \
