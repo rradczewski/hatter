@@ -17,6 +17,8 @@ RUN \
     powertop \
     tmux \
     vim \
+    gparted \
+    smartmontools \
     gnome-extensions-app \
     gnome-shell-extension-appindicator \
     gnome-shell-extension-no-overview \
