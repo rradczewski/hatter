@@ -1,0 +1,15 @@
+[Unit]
+Description=Add remote fedora
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/flatpak-install/.remote-fedora
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/bin/mkdir -p /var/flatpak-install
+ExecStart=flatpak remote-add --system --if-not-exists fedora oci+https://registry.fedoraproject.org
+ExecStartPost=/bin/touch /var/flatpak-install/.remote-fedora
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Install Flatpak app %i from Flathub
+Documentation=man:flatpak(1)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/flatpak-install/flathub-%i
+Requires=flatpak-remote-flathub.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'flatpak info --system %i >/dev/null 2>&1 \
+    || flatpak install --system --noninteractive --assumeyes flathub %i'
+ExecStartPost=/bin/touch /var/flatpak-install/flathub-%i
+
+[Install]
+WantedBy=multi-user.target
