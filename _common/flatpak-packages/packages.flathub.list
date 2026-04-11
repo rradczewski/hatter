@@ -3,4 +3,4 @@ org.chromium.Chromium
 org.mozilla.firefox
 org.freedesktop.Platform.ffmpeg-full
 com.visualstudio.code
-com.visualstudio.code.tool.podman
+com.visualstudio.code.tool.podman/x86_64/stable
