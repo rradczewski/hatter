@@ -7,8 +7,12 @@ RUN ln -s /etc/systemd/system/flatpak-remote-flathub.service \
 
 RUN \
 	--mount=type=bind,source=./_common/flatpak-packages/packages.fedora.list,target=/_common/flatpak-packages/packages.fedora.list \
-    cat /_common/flatpak-packages/packages.fedora.list | xargs -n1 systemd-escape | xargs -I '{}' ln -s /etc/systemd/system/flatpak-install-fedora@.service /etc/systemd/system/multi-user.target.wants/flatpak-install-flathub@{}.service
+    cat /_common/flatpak-packages/packages.fedora.list | \
+        xargs -n1 systemd-escape --template="flatpak-install-fedora@.service" | \
+        xargs -I '{}' ln -s /etc/systemd/system/flatpak-install-fedora@.service /etc/systemd/system/multi-user.target.wants/{}
 
 RUN \
 	--mount=type=bind,source=./_common/flatpak-packages/packages.flathub.list,target=/_common/flatpak-packages/packages.flathub.list \
-    cat /_common/flatpak-packages/packages.flathub.list | xargs -n1 systemd-escape | xargs -I '{}' ln -s /etc/systemd/system/flatpak-install-flathub@.service /etc/systemd/system/multi-user.target.wants/flatpak-install-flathub@{}.service
+    cat /_common/flatpak-packages/packages.flathub.list | \
+        xargs -n1 systemd-escape --template="flatpak-install-flathub@.service" | \
+        xargs -I '{}' ln -s /etc/systemd/system/flatpak-install-flathub@.service /etc/systemd/system/multi-user.target.wants/{}
