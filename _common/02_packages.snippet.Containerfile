@@ -17,6 +17,7 @@ RUN \
     powertop \
     tmux \
     vim \
+    just \
     gparted \
     smartmontools \
     gnome-extensions-app \
