@@ -17,6 +17,8 @@ RUN \
     powertop \
     tmux \
     vim \
+    fd-find \
+    ripgrep \
     just \
     gparted \
     smartmontools \
