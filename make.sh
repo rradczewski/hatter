@@ -12,6 +12,16 @@ list_hats() {
         -printf '%f\n'
 }
 
+render_snippets() {
+    local DIRECTORY="$1"
+
+    while IFS= read -r snippet; do
+        echo "# ${snippet#"$BASEDIR/"}"
+        cat "${snippet}"
+        echo
+    done < <(find "${DIRECTORY}" -maxdepth 1 -name '*.snippet.Containerfile' | sort)
+}
+
 make_containerfile() {
     local HAT="$1"
     local TARGET_FILE="$OUTDIR/$HAT.Containerfile"
@@ -20,9 +30,9 @@ make_containerfile() {
 ARG BASE_IMAGE
 FROM \$BASE_IMAGE
 
-$(find "${BASEDIR}/_common/" -name *.snippet.Containerfile -printf '# '_common/'%f\n' -exec cat {} \; -printf '\n')
+$(render_snippets "${BASEDIR}/_common/")
 
-$(find "${BASEDIR}/$HAT/" -name *.snippet.Containerfile -printf '# '$HAT/'%f\n' -exec cat {} \; -printf '\n')
+$(render_snippets "${BASEDIR}/$HAT/")
 
 RUN ostree container commit
 EOF
