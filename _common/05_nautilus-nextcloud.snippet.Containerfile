@@ -7,7 +7,7 @@ RUN \
 RUN \
     --mount=type=cache,dst=/var/cache/dnf \
     --mount=type=cache,dst=/var/cache/libdnf5 \
-	--mount=type=bind,source=./_common/05-nautilus-nextcloud.install.sh,target=/_common/05-nautilus-nextcloud.install.sh \
+	--mount=type=bind,source=./_common/05_nautilus-nextcloud.install.sh,target=/_common/05_nautilus-nextcloud.install.sh \
     --mount=type=tmpfs,dst=/tmp/nextcloud_desktop \
-	bash /_common/05-nautilus-nextcloud.install.sh
+	bash /_common/05_nautilus-nextcloud.install.sh
 
