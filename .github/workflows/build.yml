@@ -14,7 +14,7 @@ env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
-  FEDORA_BASE_IMAGE: quay.io/fedora/fedora-silverblue:43
+  FEDORA_BASE_IMAGE: quay.io/fedora/fedora-silverblue:44
 
 
 jobs:
