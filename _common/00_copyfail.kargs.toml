@@ -1,0 +1,1 @@
+kargs = ["initcall_blacklist=algif_aead_init"]
