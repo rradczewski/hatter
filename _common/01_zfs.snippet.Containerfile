@@ -1,3 +1,10 @@
+# Fix until zfs can do kernel 7
+RUN \
+    --mount=type=cache,dst=/var/cache/dnf \
+    --mount=type=cache,dst=/var/cache/libdnf5 \
+	dnf install -y kernel-6.19.14-200.fc43 kernel-core-6.19.14-200.fc43 kernel-devel-6.19.14-200.fc43
+
+
 RUN \
     --mount=type=cache,dst=/var/cache/dnf \
     --mount=type=cache,dst=/var/cache/libdnf5 \
