@@ -1,0 +1,10 @@
+policy_module(devcontainer_features, 1.0)
+
+require {
+    type container_t;
+    type container_var_run_t;
+}
+
+allow container_t container_var_run_t:dir { open read search getattr };
+allow container_t container_var_run_t:file { open read getattr };
+allow container_t container_var_run_t:lnk_file { read getattr };
