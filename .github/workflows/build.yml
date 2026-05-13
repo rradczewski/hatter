@@ -55,11 +55,11 @@ jobs:
           set -x
           TMP_DIR=$(mktemp -d)
           cd "$TMP_DIR"
-          curl --proto =https --tlsv1.2 -sSfL -O \
-            "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/trunkver_linux_amd64" \
-            "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/trunkver_linux_amd64.cosign.bundle" \
-            "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/checksums.txt" \
-            "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/checksums.txt.cosign.bundle"
+          curl --proto =https --tlsv1.2 -sSfL \
+            -o trunkver_linux_amd64 "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/trunkver_linux_amd64" \
+            -o trunkver_linux_amd64.cosign.bundle "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/trunkver_linux_amd64.cosign.bundle" \
+            -o checksums.txt "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/checksums.txt" \
+            -o checksums.txt.cosign.bundle "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/checksums.txt.cosign.bundle"
 
           cosign verify-blob \
             "checksums.txt" \
