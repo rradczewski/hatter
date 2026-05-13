@@ -24,7 +24,7 @@ build hat: (render hat)
 
   BUILDAH_OPT=""
   if [ "$GITHUB_REF" == "refs/heads/main" ]; then
-    BUILDAH_OPT="--cache-from=ghcr.io/rradczewski/hatter-cache --cache-to=ghcr.io/rradczewski/hatter-cache --push"
+    BUILDAH_OPT="--cache-from=ghcr.io/rradczewski/hatter-cache --cache-to=ghcr.io/rradczewski/hatter-cache"
   fi
 
   IIDFILE="out//{{ hat }}.iid"
