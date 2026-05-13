@@ -23,13 +23,16 @@ build hat: (render hat)
   source "out/{{ hat }}.meta"
 
   BUILDAH_OPT=""
+  set +u
   if [ "$GITHUB_REF" == "refs/heads/main" ]; then
-    BUILDAH_OPT="--cache-from=ghcr.io/rradczewski/hatter-cache --cache-to=ghcr.io/rradczewski/hatter-cache"
+    BUILDAH_OPT="--cache-to=ghcr.io/rradczewski/hatter-cache"
   fi
+  set -u
 
   IIDFILE="out//{{ hat }}.iid"
   buildah \
     build \
+    --cache-from=ghcr.io/rradczewski/hatter-cache \
     $BUILDAH_OPT \
     --iidfile "$IIDFILE" \
     --layers \

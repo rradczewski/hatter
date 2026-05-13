@@ -13,11 +13,13 @@ render_hat() {
     cat <<EOF
 FROM $BASE_IMAGE
 
-ARG VERSION="${VERSION}"
-ARG HAT="vanilla"
 
 $(render_snippets "${BASE_DIR}/_common/")
 $(render_snippets "${BASE_DIR}/ibp14/")
+
+ARG VERSION="${VERSION}"
+ARG HAT="vanilla"
+$(cat "${BASE_DIR}/_tooling/update-os-release.snippet.Containerfile")
 
 RUN ostree container commit
 EOF
