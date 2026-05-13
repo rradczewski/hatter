@@ -32,6 +32,7 @@ build hat: (render hat)
   IIDFILE="out//{{ hat }}.iid"
   buildah \
     build \
+    --cache-ttl=168h \
     --cache-from=ghcr.io/rradczewski/hatter-cache \
     $BUILDAH_OPT \
     --iidfile "$IIDFILE" \
