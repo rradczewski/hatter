@@ -53,6 +53,7 @@ push hat:
   source "out/{{ hat }}.meta"
   DIGEST=$(cat "out/{{ hat }}.iid")
   buildah push "$DIGEST" "docker://$IMAGE_TAG"
+  buildah push "$DIGEST" "docker://$IMAGE:edge"
 
 sign hat:
   #!/bin/env bash
