@@ -39,8 +39,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/)render\\.sh$"
+      "managerFilePatterns": [
+        "/(^|/)render\\.sh$/"
       ],
       "matchStrings": [
         "BASE_IMAGE=(?<depName>[a-z0-9.\\-/]+):(?<currentValue>[\\w.\\-]+)@(?<currentDigest>sha256:[a-f0-9]+)"
