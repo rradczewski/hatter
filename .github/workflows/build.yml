@@ -14,7 +14,6 @@ env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
-  FEDORA_BASE_IMAGE: quay.io/fedora/fedora-silverblue:43
 
 
 jobs:
@@ -24,7 +23,6 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - run: bash make.sh
       - id: set-matrix
         run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name .github -not -name _common -not -name .git -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
 
@@ -37,41 +35,12 @@ jobs:
         max-parallel: 1
         matrix:
             hat: ${{ fromJson(needs.list-hats.outputs.matrix) }}
-    env:
-      IMAGE_NAME: "${{ github.event.repository.name }}/${{ matrix.hat }}"
 
     outputs:
       registry-path: ${{ steps.push.outputs.registry-path }}
     steps:
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Retrieve Fedora Image Information
-        id: fedora
-        run: |
-          skopeo inspect \
-            docker://${{ env.FEDORA_BASE_IMAGE }} \
-            --format "fedora-digest={{ .Digest }}\nfedora-version={{ index .Labels \"org.opencontainers.image.version\" }}" \
-            | tee "$GITHUB_OUTPUT"
-
-      - name: Generate trunkver
-        id: trunkver
-        uses: crftd-tech/trunkver@66d540d04b6014d6e792a68830efede677de7dd9 # main
-        with:
-          baseVersion: ${{ steps.fedora.outputs.fedora-version }}
-          prerelease: true
-
-      - run: bash make.sh
-
-      - name: Docker Metadata
-        id: docker-metadata
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6
-        with:
-          images: |
-            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=edge
-            type=semver,value=${{ steps.trunkver.outputs.trunkver }},pattern={{version}}
 
       - name: Log in to ghcr.io
         uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1
@@ -80,60 +49,13 @@ jobs:
           password: ${{ env.REGISTRY_PASSWORD }}
           registry: ${{ env.IMAGE_REGISTRY }}
       
-      - name: Restore production keys
-        if: github.ref == 'refs/heads/main'
+      - name: Build image
         run: |
-          mkdir -p ./tmp/kernel_signing_key/ || true
-          echo "$KERNEL_SIGNING_CERTIFICATE_PEM" > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
-          echo "$KERNEL_SIGNING_CERTIFICATE_KEY" > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
+          just build "${{ matrix.hat }}"
+          just push "${{ matrix.hat }}"
         env:
           KERNEL_SIGNING_CERTIFICATE_PEM: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_PEM }}
           KERNEL_SIGNING_CERTIFICATE_KEY: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_KEY }}
-      
-      - name: Generate throaway temp keys for anyone else
-        if: github.ref != 'refs/heads/main'
-        run: |
-          mkdir -p ./tmp/kernel_signing_key/ || true
-          openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
-          openssl req -x509 -key ./tmp/kernel_signing_key/kernel_signing_certificate_key.key -subj /CN=github.com/CN=rradczewski/CN=hatter/CN=CI_THROAWAY_KEY_DO_NOT_TRUST > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
-
-      - name: Make sure that keypair is valid
-        run: |
-          set -uexo pipefail
-          ls -la ./tmp/kernel_signing_key/
-          PUBKEY_FROM_PRIVATE_KEY=$(openssl pkey -pubout -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.key)
-          PUBKEY_FROM_CERTIFICATE=$(openssl x509 -noout -pubkey -in ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
-          if [ "$PUBKEY_FROM_CERTIFICATE" != "$PUBKEY_FROM_PRIVATE_KEY" ];
-          then
-            echo "Pubkeys don't match"
-            exit 1
-          fi
-
-      - name: Build Image
-        id: build_image
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
-        with:
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ steps.docker-metadata.outputs.tags }}
-          labels: ${{ steps.docker-metadata.outputs.labels }}
-          oci: true
-          layers: true
-          containerfiles: |
-            ./out/${{ matrix.hat }}.Containerfile
-          build-args: |
-            HAT=${{ matrix.hat }}
-            VERSION=${{ steps.trunkver.outputs.trunkver }}
-            BASE_IMAGE=${{ env.FEDORA_BASE_IMAGE }}@${{ steps.fedora.outputs.fedora-digest }}
-          # extra-args: |
-          #   --cache-from=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
-          #   --cache-to=${{ env.IMAGE_REGISTRY }}/${{ github.event.repository.name }}-cache
-
-      - name: Push To GHCR
-        if: github.ref == 'refs/heads/main'
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2
-        id: push
-        with:
-          tags: ${{ steps.build_image.outputs.tags }}
 
       - name: Setup cosign
         if: github.ref == 'refs/heads/main'
@@ -143,12 +65,4 @@ jobs:
 
       - name: Sign docker image
         if: github.ref == 'refs/heads/main'
-        run: cosign sign --yes ${REGISTRY_PATH}@${DIGEST}
-        env:
-          DIGEST: ${{ steps.push.outputs.digest }}
-          REGISTRY_PATH: ${{ steps.push.outputs.registry-path }}
-
-      - name: Echo outputs
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "${{ toJSON(steps.push.outputs) }}"
+        run: just sign "${{ matrix.hat }}"

@@ -1,0 +1,6 @@
+LABEL "containers.bootc" "1",
+LABEL "org.opencontainers.image.source" "https://github.com/rradczewski/hatter",
+LABEL "org.opencontainers.image.title" "rradchewski/hatter/$HAT",
+LABEL "org.opencontainers.image.url" "https://github.com/rradczewski/hatter",
+LABEL "org.opencontainers.image.version" "$VERSION",
+LABEL "ostree.bootable" "true",

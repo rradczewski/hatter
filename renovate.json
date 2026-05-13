@@ -8,6 +8,7 @@
   "dependencyDashboard": true,
   "automerge": true,
   "automergeType": "branch",
+  "minimumReleaseAge": "14 days",
   "packageRules": [
     {
       "matchFileNames": [
@@ -20,16 +21,14 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Update Fedora base image based on endoflife-date",
-      "managerFilePatterns": [
-        ".github/workflows/*.yml"
+      "fileMatch": [
+        "(^|/)render\\.sh$"
       ],
       "matchStrings": [
-        "FEDORA_BASE_IMAGE: quay.io/fedora/fedora-silverblue:(?<currentValue>[^\\s]+).*\\n"
+        "BASE_IMAGE=(?<depName>[a-z0-9.\\-/]+):(?<currentValue>[\\w.\\-]+)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
-      "versioningTemplate": "loose",
-      "datasourceTemplate": "endoflife-date",
-      "depNameTemplate": "fedora"
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
     }
   ]
 }
