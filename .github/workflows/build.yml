@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - id: set-matrix
-        run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name .github -not -name _common -not -name .git -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
+        run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name .github -not -name _common -not -name .git -not -name _tooling -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
 
   build-image:
     name: Build and push image
@@ -39,6 +39,11 @@ jobs:
     outputs:
       registry-path: ${{ steps.push.outputs.registry-path }}
     steps:
+      - name: Install just
+        run: |
+          sudo apt-get update
+          sudo apt-get install just --yes
+
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
