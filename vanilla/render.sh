@@ -14,6 +14,7 @@ render_hat() {
 FROM $BASE_IMAGE
 
 $(render_snippets "${BASE_DIR}/_common/")
+$(render_snippets "${BASE_DIR}/_common_desktop/")
 
 ARG VERSION="${VERSION}"
 ARG HAT="vanilla"

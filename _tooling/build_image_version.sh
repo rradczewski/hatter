@@ -8,8 +8,6 @@ build_image_version() {
     local BUILD_REF
     local SOURCE_REF
 
-
-
     local BASE_IMAGE_WITHOUT_TAG=${BASE_IMAGE//:*@/@}
     local BASE_VERSION
     BASE_VERSION=$(skopeo inspect \
