@@ -19,7 +19,7 @@ $(render_snippets "${BASE_DIR}/ibp14/")
 
 ARG VERSION="${VERSION}"
 ARG HAT="vanilla"
-$(cat "${BASE_DIR}/_tooling/update-os-release.snippet.Containerfile")
+$(render_snippets "${BASE_DIR}/_common_meta/")
 
 RUN ostree container commit
 EOF
