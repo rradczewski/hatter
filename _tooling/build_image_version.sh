@@ -20,7 +20,7 @@ build_image_version() {
     set +u
     if [ ! -z "$GITHUB_SHA" ]; then
         BUILD_REF="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
-        SOURCE_REF="$GITHUB_SHA"
+        SOURCE_REF="g$GITHUB_SHA"
     else
         BUILD_REF="dev"
         SOURCE_REF="g$(git rev-parse --short HEAD)"
