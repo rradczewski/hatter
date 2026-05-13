@@ -10,13 +10,15 @@ render hat:
 
 build hat: (render hat)
   #!/bin/env bash
-  set -euxo pipefail
+  set -eo pipefail
 
-  if [ -z "$KERNEL_SIGNING_CERTIFICATE_KEY" ] || [ -z "$KERNEL_SIGNINING_CERTIFICATE_PEM" ]; then
+  if [ -z "$KERNEL_SIGNING_CERTIFICATE_KEY" ] || [ -z "$KERNEL_SIGNING_CERTIFICATE_PEM" ]; then
     just generate_temporary_signing_keys
     export KERNEL_SIGNING_CERTIFICATE_KEY=$(cat ./tmp/kernel_signing_key/kernel_signing_certificate_key.key)
     export KERNEL_SIGNING_CERTIFICATE_PEM=$(cat ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
   fi
+
+  set -euxo pipefail
 
   source "out/{{ hat }}.meta"
 
