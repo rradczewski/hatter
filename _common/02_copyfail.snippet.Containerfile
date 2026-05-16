@@ -1,7 +1,2 @@
-COPY <<EOF /etc/modprobe.d/copyfail.conf
-install algif_aead /bin/false
-EOF
-
-COPY <<EOF /usr/lib/bootc/kargs.d/02_copyfail.kargs.toml
-kargs = ["initcall_blacklist=algif_aead_init"]
-EOF
+RUN echo "install algif_aead /bin/false" > /etc/modprobe.d/copyfail.conf
+RUN echo 'kargs = ["initcall_blacklist=algif_aead_init"]' > /usr/lib/bootc/kargs.d/02_copyfail.kargs.toml
