@@ -59,6 +59,7 @@ jobs:
     environment: ${{ github.ref == 'refs/heads/main' && 'main' || '' }}
     strategy:
         max-parallel: 1
+        fail-fast: false
         matrix:
             hat: ${{ fromJson(needs.list-hats.outputs.matrix) }}
 
