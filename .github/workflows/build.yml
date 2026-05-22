@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix_not_empty: ${{ steps.check-matrix.outputs.matrix_not_empty }}
     steps:
       - name: Install just
         run: |
@@ -36,10 +37,21 @@ jobs:
           else
             echo "matrix=$(just list-as-json list-changed-hats)" | tee "$GITHUB_OUTPUT"
           fi
+      - id: check-matrix
+        run: |
+          if echo '${{ steps.set-matrix.outputs.matrix }}' | jq -e '. | length > 0' > /dev/null 2>&1; then
+            echo "matrix_not_empty=true" | tee -a "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_REF" == "refs/heads/main" ]; then
+            echo "::error::Empty matrix on main — this should never happen"
+            exit 1
+          else
+            echo "matrix_not_empty=false" | tee -a "$GITHUB_OUTPUT"
+          fi
 
   build-image:
     name: Build and push image
     needs: [list-hats]
+    if: needs.list-hats.outputs.matrix_not_empty == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'main' || '' }}
     strategy:
