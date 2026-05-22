@@ -22,9 +22,18 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
+      - name: Install just
+        run: |
+          sudo apt-get update
+          sudo apt-get install just --yes
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - id: set-matrix
-        run: echo "::set-output name=matrix::$(find . -maxdepth 1 -mindepth 1 -type d -not -name '.*' -not -name '_*' -not -name tmp -not -name out -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')"
+        run: |
+          if [ "$GITHUB_REF" == "refs/heads/main" ]; then
+            echo "matrix=$(just list-as-json list-hats)" | tee "$GITHUB_OUTPUT"
+          else
+            echo "matrix=$(just list-as-json list-changed-hats)" | tee "$GITHUB_OUTPUT"
+          fi
 
   build-image:
     name: Build and push image

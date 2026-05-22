@@ -4,6 +4,31 @@ generate_temporary_signing_keys:
   openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 > ./tmp/kernel_signing_key/kernel_signing_certificate_key.key
   openssl req -x509 -key ./tmp/kernel_signing_key/kernel_signing_certificate_key.key -subj /CN=github.com/CN=rradczewski/CN=hatter/CN=CI_THROAWAY_KEY_DO_NOT_TRUST > ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem
 
+list-as-json cmd:
+  just "{{cmd}}" |  jq -R '.' | jq -sc '.'
+
+list-changed-hats:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+
+  changed_folders=$(
+    git diff --name-only origin/main...HEAD \
+      | cut -d'/' -f1 \
+      | sort -u
+  )
+
+  subtasks=$(just list-hats | sort -u)
+
+  comm -12 <(echo "$changed_folders") <(echo "$subtasks")
+
+
+list-hats:
+  find . -maxdepth 1 -mindepth 1 -type d \
+    -not -name '.*' \
+    -not -name '_*' \
+    -not -name tmp \
+    -not -name out \
+    -printf '%f\n'
 
 render hat:
   ./_tooling/render_hat.sh "{{ hat }}"
