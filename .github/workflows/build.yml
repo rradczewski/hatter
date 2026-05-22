@@ -28,10 +28,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install just --yes
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - run: |
-          git fetch origin main
+        with:
+          fetch-depth: 0
+      - run: git fetch origin main
       - id: set-matrix
         run: |
+          set -euxo pipefail
           if [ "$GITHUB_REF" == "refs/heads/main" ]; then
             echo "matrix=$(just list-as-json list-hats)" | tee "$GITHUB_OUTPUT"
           else
@@ -39,6 +41,7 @@ jobs:
           fi
       - id: check-matrix
         run: |
+          set -euxo pipefail
           if echo '${{ steps.set-matrix.outputs.matrix }}' | jq -e '. | length > 0' > /dev/null 2>&1; then
             echo "matrix_not_empty=true" | tee -a "$GITHUB_OUTPUT"
           elif [ "$GITHUB_REF" == "refs/heads/main" ]; then
