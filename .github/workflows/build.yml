@@ -27,6 +27,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install just --yes
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - run: |
+          git fetch origin main
       - id: set-matrix
         run: |
           if [ "$GITHUB_REF" == "refs/heads/main" ]; then
