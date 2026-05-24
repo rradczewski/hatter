@@ -116,3 +116,16 @@ vm hat:
     --type qcow2 \
     ${IMAGE}@${DIGEST}
   sudo chown $(id -u) -vR "$OUT_DIR"
+
+update-digest hat:
+  #!/bin/env bash
+  set -euxo pipefail
+
+  CURRENT_REF=$(grep -oP '^BASE_IMAGE=\K(.+)' "{{ hat }}/render.sh")
+  CURRENT_REF_WITHOUT_DIGEST=${CURRENT_REF//@*/}
+
+  NEW_DIGEST=$(skopeo inspect "docker://${CURRENT_REF_WITHOUT_DIGEST}" --format "{{ "{{ .Digest }}" }}")
+
+  UPDATED_REF=${CURRENT_REF_WITHOUT_DIGEST}@${NEW_DIGEST}
+
+  sed -i 's|^BASE_IMAGE=.*$|BASE_IMAGE='${UPDATED_REF}'|' "{{ hat }}/render.sh"
