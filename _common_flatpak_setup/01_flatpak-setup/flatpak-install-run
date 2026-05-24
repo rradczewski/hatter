@@ -1,0 +1,29 @@
+#!/bin/bash
+# /usr/libexec/flatpak-install-run
+
+set -euxo pipefail
+
+NAME="${1:?Usage: flatpak-install-run <package-name>}"
+STAMP="/var/flatpak-install/${NAME}.stamp"
+mkdir -p "/var/flatpak-install/" || true
+
+echo "Installing flatpak: $REF from $REMOTE" 
+
+flatpak install --system --noninteractive --assumeyes --or-update "$REMOTE" "$REF"
+
+if [ -n "${COMMIT:-}" ]; then
+    echo "Updating $REF to commit $COMMIT"
+    flatpak update --system --noninteractive --assumeyes --commit="$COMMIT" "$REF"
+
+    flatpak pin --system "$REF"
+    flatpak mask --system "$REF"
+fi
+
+{
+    echo "REF=$REF"
+    if [ -n "${COMMIT:-}" ]; then
+        echo "STAMP_COMMIT=$COMMIT"
+    fi
+} > "$STAMP"
+
+echo "Flatpak $REF installed successfully (stamp written to $STAMP)"

@@ -1,0 +1,50 @@
+#!/bin/bash
+set -euxo pipefail
+
+NORMAL_DIR="${1:?}"
+CONF_DIR="/usr/share/flatpak-install"
+STAMP_DIR="/var/flatpak-install"
+
+[ -d "$CONF_DIR" ] || exit 0
+mkdir -p "$STAMP_DIR" || true
+
+for conf in "$CONF_DIR"/*.conf; do
+    [ -f "$conf" ] || continue
+
+    name="$(basename "$conf" .conf)"
+    stamp="$STAMP_DIR/${name}.stamp"
+
+    unset REF COMMIT PERMISSIONS
+    # shellcheck disable=SC1090
+    . "$conf"
+
+    [ -n "${REF:-}" ] || continue
+
+    install_needed=0
+
+    if [ ! -f "$stamp" ]; then
+        install_needed=1
+    else
+        unset STAMP_COMMIT
+        # shellcheck disable=SC1090
+        . "$stamp"
+
+        if [ -n "${COMMIT:-}" ]; then
+            if [ "${STAMP_COMMIT:-}" != "$COMMIT" ]; then
+                install_needed=1
+            fi
+        fi
+    fi
+
+    if [ "$install_needed" -eq 1 ]; then
+        mkdir -p "$NORMAL_DIR/multi-user.target.wants"
+        ln -sf "/usr/lib/systemd/system/flatpak-install@.service" \
+            "$NORMAL_DIR/multi-user.target.wants/flatpak-install@${name}.service"
+    fi
+
+    if [ -n "${PERMISSIONS:-}" ]; then
+        mkdir -p "$NORMAL_DIR/multi-user.target.wants"
+        ln -sf "/usr/lib/systemd/system/flatpak-permissions@.service" \
+            "$NORMAL_DIR/multi-user.target.wants/flatpak-permissions@${name}.service"
+    fi
+done

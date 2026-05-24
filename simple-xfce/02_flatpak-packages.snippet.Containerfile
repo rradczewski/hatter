@@ -1,18 +1,1 @@
-ADD ./simple-xfce/02_flatpak-packages/*.service /etc/systemd/system/
-
-RUN ln -s /etc/systemd/system/flatpak-remote-flathub.service \
-          /etc/systemd/system/multi-user.target.wants/flatpak-remote-flathub.service && \
-    ln -s /etc/systemd/system/flatpak-remote-fedora.service \
-          /etc/systemd/system/multi-user.target.wants/flatpak-remote-fedora.service
-
-RUN \
-	--mount=type=bind,source=./simple-xfce/02_flatpak-packages/packages.fedora.list,target=/_03_common_desktop/flatpak-packages/packages.fedora.list \
-    cat /simple-xfce/02_flatpak-packages/packages.fedora.list | \
-        xargs -n1 systemd-escape --template="flatpak-install-fedora@.service" | \
-        xargs -I '{}' ln -s /etc/systemd/system/flatpak-install-fedora@.service /etc/systemd/system/multi-user.target.wants/{}
-
-RUN \
-	--mount=type=bind,source=./simple-xfce/02_flatpak-packages/packages.flathub.list,target=/_03_common_desktop/flatpak-packages/packages.flathub.list \
-    cat /simple-xfce/02_flatpak-packages/packages.flathub.list | \
-        xargs -n1 systemd-escape --template="flatpak-install-flathub@.service" | \
-        xargs -I '{}' ln -s /etc/systemd/system/flatpak-install-flathub@.service /etc/systemd/system/multi-user.target.wants/{}
+COPY ./simple-xfce/02_flatpak-packages/*.conf /usr/share/flatpak-install/

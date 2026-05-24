@@ -1,0 +1,10 @@
+[Unit]
+Description=Apply Flatpak permission overrides for %i
+After=flatpak-install@%i.service flatpak-add-fedora-repos.service
+Wants=flatpak-install@%i.service flatpak-add-fedora-repos.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/usr/share/flatpak-install/%i.conf
+ExecStart=/usr/bin/dbus-run-session /bin/bash -c 'exec flatpak override --system $PERMISSIONS "$REF"'

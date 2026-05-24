@@ -1,0 +1,10 @@
+[Unit]
+Description=Install Flatpak package %i
+After=network-online.target flatpak-add-fedora-repos.service
+Wants=network-online.target flatpak-add-fedora-repos.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/usr/share/flatpak-install/%i.conf
+ExecStart=/usr/bin/dbus-run-session /usr/libexec/flatpak-install-run %i
