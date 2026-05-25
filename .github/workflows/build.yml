@@ -6,15 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  packages: write
-  id-token: write
-  attestations: write
+  packages: ${{ github.ref == 'refs/heads/main' && 'write' || 'read' }}
+  id-token: ${{ github.ref == 'refs/heads/main' && 'write' || 'nil' }}
+  attestations: ${{ github.ref == 'refs/heads/main' && 'write' || 'nil' }}
 
 env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
-
 
 jobs:
   list-hats:
