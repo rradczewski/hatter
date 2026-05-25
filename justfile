@@ -89,8 +89,7 @@ sign hat:
 
   source "out/{{ hat }}.meta"
   IMAGE_ID=$(cat "out/{{ hat }}.iid")
-  DIGEST=$(podman inspect "${IMAGE_ID#sha256:}" --format {{ "{{.Digest}}" }})
-  cosign sign --yes ${IMAGE}@${DIGEST}
+  cosign sign --verbose --yes ${IMAGE}@${IMAGE_ID}
 
 vm hat:
   #!/bin/env bash
