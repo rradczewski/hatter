@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  packages: ${{ github.ref == 'refs/heads/main' && 'write' || 'read' }}
-  id-token: ${{ github.ref == 'refs/heads/main' && 'write' || 'nil' }}
-  attestations: ${{ github.ref == 'refs/heads/main' && 'write' || 'nil' }}
+  packages: write
+  id-token: write
+  attestations: write
 
 env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
