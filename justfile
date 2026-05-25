@@ -79,17 +79,18 @@ push hat:
   set -euxo pipefail
 
   source "out/{{ hat }}.meta"
-  DIGEST=$(cat "out/{{ hat }}.iid")
-  buildah push "$DIGEST" "docker://$IMAGE_TAG"
-  buildah push "$DIGEST" "docker://$IMAGE:edge"
+  IMAGE_ID=$(cat "out/{{ hat }}.iid")
+  DIGESTFILE="out//{{ hat }}.digest"
+  buildah push --digestfile "$DIGESTFILE" "$IMAGE_ID" "docker://$IMAGE_TAG"
+  buildah push "$IMAGE_ID" "docker://$IMAGE:edge"
 
 sign hat:
   #!/bin/env bash
   set -euxo pipefail
 
   source "out/{{ hat }}.meta"
-  IMAGE_ID=$(cat "out/{{ hat }}.iid")
-  cosign sign --verbose --yes ${IMAGE}@${IMAGE_ID}
+  DIGEST=$(cat "out/{{ hat }}.digest")
+  cosign sign --verbose --yes ${IMAGE}@${DIGEST}
 
 vm hat:
   #!/bin/env bash
