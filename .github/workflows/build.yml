@@ -115,14 +115,18 @@ jobs:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
           registry: ${{ env.IMAGE_REGISTRY }}
-      
+
       - name: Build image
         run: |
           just build "${{ matrix.hat }}"
-          just push "${{ matrix.hat }}"
         env:
           KERNEL_SIGNING_CERTIFICATE_PEM: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_PEM }}
           KERNEL_SIGNING_CERTIFICATE_KEY: ${{ secrets.KERNEL_SIGNING_CERTIFICATE_KEY }}
+
+      - name: Push Image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          just push "${{ matrix.hat }}"
 
       - name: Sign docker image
         if: github.ref == 'refs/heads/main'
