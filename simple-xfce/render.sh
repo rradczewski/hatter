@@ -6,7 +6,7 @@ BASE_DIR="$( cd "$( dirname "$(realpath "$BASH_SOURCE")" )/../" && pwd )"
 source "$BASE_DIR/_tooling/render_snippets.sh"
 source "$BASE_DIR/_tooling/build_image_version.sh"
 
-BASE_IMAGE=quay.io/fedora/fedora-bootc:44-x86_64@sha256:bf406a7bbf7a2358134dcf9e881834bc4bfb3ca64ca9b2847cddb4841e4ed224
+BASE_IMAGE=quay.io/fedora/fedora-bootc:44-x86_64@sha256:ba2b7cb0fde5a37bacb86d2ecd9f7ce7ad9f1564f162e68fb44cff20595070b8
 VERSION=$(build_image_version "$BASE_IMAGE")
 
 render_hat() {
