@@ -38,9 +38,12 @@ build hat: (render hat)
   set -eo pipefail
 
   if [ -z "$KERNEL_SIGNING_CERTIFICATE_KEY" ] || [ -z "$KERNEL_SIGNING_CERTIFICATE_PEM" ]; then
+    echo "Generating temporary signing keys"
     just generate_temporary_signing_keys
     export KERNEL_SIGNING_CERTIFICATE_KEY=$(cat ./tmp/kernel_signing_key/kernel_signing_certificate_key.key)
     export KERNEL_SIGNING_CERTIFICATE_PEM=$(cat ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
+  else 
+    echo "Using existing signing keys"
   fi
 
   set -euxo pipefail
