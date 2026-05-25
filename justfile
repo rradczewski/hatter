@@ -79,8 +79,7 @@ push hat:
   set -euxo pipefail
 
   source "out/{{ hat }}.meta"
-  IMAGE_ID=$(cat "out/{{ hat }}.iid")
-  DIGEST=$(podman inspect "${IMAGE_ID#sha256:}" --format {{ "{{.Digest}}" }})
+  DIGEST=$(cat "out/{{ hat }}.iid")
   buildah push "$DIGEST" "docker://$IMAGE_TAG"
   buildah push "$DIGEST" "docker://$IMAGE:edge"
 
@@ -89,8 +88,7 @@ sign hat:
   set -euxo pipefail
 
   source "out/{{ hat }}.meta"
-  IMAGE_ID=$(cat "out/{{ hat }}.iid")
-  DIGEST=$(podman inspect "${IMAGE_ID#sha256:}" --format {{ "{{.Digest}}" }})
+  DIGEST=$(cat "out/{{ hat }}.iid")
   cosign sign --yes ${IMAGE}@${DIGEST}
 
 vm hat:
