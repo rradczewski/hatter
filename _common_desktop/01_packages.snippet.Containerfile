@@ -13,6 +13,7 @@ RUN \
     snapper \
     pv \
     mbuffer \
+    google-cousine-fonts \
     lm_sensors \
     powertop \
     tmux \
