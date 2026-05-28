@@ -24,7 +24,7 @@
       "matchUpdateTypes": [
         "digest"
       ],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": null
     },
     {
       "matchDatasources": [
