@@ -1,0 +1,34 @@
+name: Rotate base images
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  id-token: write
+  attestations: write
+
+env:
+  REGISTRY_USER: ${{ github.actor }}
+  REGISTRY_PASSWORD: ${{ github.token }}
+
+jobs:
+  rotate-base-images:
+    strategy:
+      matrix:
+        image:
+          - quay.io/fedora/fedora-silverblue:44-x86_64
+          - quay.io/fedora/fedora-coreos:next
+          - quay.io/fedora/fedora-bootc:44-x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install just
+        run: |
+          sudo apt-get update
+          sudo apt-get install just --yes
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0
+      - run: |
+          just rotate_base_image "${{ matrix.image }}"

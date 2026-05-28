@@ -1,3 +1,28 @@
+BASE_IMAGE_PREFIX := "ghcr.io/rradczewski/hatter/base/"
+
+rotate_base_image image:
+  #!/bin/env bash
+  set -euxo pipefail
+
+  SOURCE_IMAGE="{{ image }}"
+  IMAGE_PATH=${SOURCE_IMAGE#*/}
+
+  TARGET_IMAGE_NEXT="{{ BASE_IMAGE_PREFIX }}${IMAGE_PATH}-next"
+  TARGET_IMAGE_NOW="{{ BASE_IMAGE_PREFIX }}${IMAGE_PATH}-now"
+
+  NEW_IMAGE=$(skopeo inspect --format "{{ "{{.Name}}@{{.Digest}}" }}" "docker://$SOURCE_IMAGE")
+  
+  set +e
+  if ! skopeo inspect "docker://${TARGET_IMAGE_NEXT}" 2>&1 > /dev/null; then
+    echo "No next image, copying new next to current next"
+    skopeo copy "docker://$NEW_IMAGE" "docker://${TARGET_IMAGE_NEXT}"
+  fi
+  set -e
+
+  skopeo copy "docker://$TARGET_IMAGE_NEXT" "docker://${TARGET_IMAGE_NOW}"
+  skopeo copy "docker://$NEW_IMAGE" "docker://${TARGET_IMAGE_NEXT}"
+
+
 generate_temporary_signing_keys:
   #!/bin/env bash
   mkdir -p ./tmp/kernel_signing_key/ || true
@@ -20,7 +45,6 @@ list-changed-hats:
   subtasks=$(just list-hats | sort -u)
 
   comm -12 <(echo "$changed_folders") <(echo "$subtasks")
-
 
 list-hats:
   find . -maxdepth 1 -mindepth 1 -type d \
