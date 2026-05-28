@@ -104,7 +104,6 @@ jobs:
           cp "trunkver_linux_amd64" "$HOME/.local/bin/trunkver"
           chmod a+x "$HOME/.local/bin/trunkver"
 
-
       - name: Checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 

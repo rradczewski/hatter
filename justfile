@@ -15,7 +15,7 @@ rotate_base_image image:
   set +e
   if ! skopeo inspect "docker://${TARGET_IMAGE_NEXT}" 2>&1 > /dev/null; then
     echo "No next image, copying new next to current next"
-    skopeo copy "docker://$NEW_IMAGE" "docker://${TARGET_IMAGE_NEXT}"
+    skopeo copy --all "docker://$NEW_IMAGE" "docker://${TARGET_IMAGE_NEXT}"
   fi
   set -e
 
