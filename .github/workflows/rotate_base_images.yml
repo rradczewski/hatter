@@ -6,8 +6,6 @@ on:
 
 permissions:
   packages: write
-  id-token: write
-  attestations: write
 
 env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
