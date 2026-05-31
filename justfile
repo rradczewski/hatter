@@ -68,6 +68,19 @@ build hat: (render hat)
     export KERNEL_SIGNING_CERTIFICATE_PEM=$(cat ./tmp/kernel_signing_key/kernel_signing_certificate_key.pem)
   else 
     echo "Using existing signing keys"
+
+    PUBKEY_FROM_REPO=$(cat "./signing_key.pub" | openssl x509 -noout -pubkey)
+    PUBKEY_FROM_PRIVATE_KEY=$(echo "$KERNEL_SIGNING_CERTIFICATE_KEY" | openssl pkey -pubout)
+    PUBKEY_FROM_CERTIFICATE=$(echo "$KERNEL_SIGNING_CERTIFICATE_PEM" | openssl x509 -noout -pubkey)
+    if [ "$PUBKEY_FROM_REPO" != "$PUBKEY_FROM_CERTIFICATE" ] || [ "$PUBKEY_FROM_CERTIFICATE" != "$PUBKEY_FROM_PRIVATE_KEY" ] || [ -z "$PUBKEY_FROM_CERTIFICATE" ] || [ -z "$PUBKEY_FROM_PRIVATE_KEY" ];
+    then
+      echo "Pubkeys don't match"
+      echo "Repo: $PUBKEY_FROM_REPO"
+      echo "Private Key: $PUBKEY_FROM_PRIVATE_KEY"
+      echo "Pub: $PUBKEY_FROM_CERTIFICATE"
+      exit 1
+    fi
+    exit 0
   fi
 
   set -euxo pipefail
