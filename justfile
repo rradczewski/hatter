@@ -80,7 +80,6 @@ build hat: (render hat)
       echo "Pub: $PUBKEY_FROM_CERTIFICATE"
       exit 1
     fi
-    exit 0
   fi
 
   set -euxo pipefail
