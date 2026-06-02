@@ -29,4 +29,5 @@ RUN \
     gnome-shell-extension-gsconnect \
     blueman-nautilus \
     nautilus-gsconnect \
-    gnome-tweaks
+    gnome-tweaks \
+    @virtualization

@@ -142,10 +142,11 @@ vm hat:
   sudo skopeo copy \
     'containers-storage:[overlay@'$HOME'/.local/share/containers/storage+/run/user/'$(id -u)'/containers]'${IMAGE}@${DIGEST} \
     'containers-storage:[overlay@/var/lib/containers/storage]'${IMAGE_TAG}
-    
+  
   sudo podman run \
     --rm \
     -it \
+    --volume "./{{ hat }}/config.toml:/config.toml:z" \
     --privileged \
     --security-opt label=type:unconfined_t \
     -v "$OUT_DIR":/output \
