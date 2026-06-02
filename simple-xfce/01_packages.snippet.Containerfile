@@ -2,6 +2,7 @@ RUN \
     --mount=type=cache,dst=/var/cache/dnf \
     --mount=type=cache,dst=/var/cache/libdnf5 \
     dnf install -y \
+    @xfce-desktop-environment \
     podman-compose \
     btrfs-assistant \
     snapper \
@@ -19,14 +20,4 @@ RUN \
     qemu-guest-agent
 
 RUN \
-    --mount=type=cache,dst=/var/cache/dnf \
-    --mount=type=cache,dst=/var/cache/libdnf5 \
-    dnf install -y \
-        @xfce-desktop-environment \
-        gnome-initial-setup \
-        --exclude=lightdm \
-        --exclude=lightdm-gtk
-
-RUN \
-    systemctl enable gdm && \
     systemctl set-default graphical.target

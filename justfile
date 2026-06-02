@@ -128,6 +128,36 @@ sign hat:
   DIGEST=$(cat "out/{{ hat }}.digest")
   cosign sign --verbose --yes ${IMAGE}@${DIGEST}
 
+iso hat:
+  #!/bin/env bash
+  set -euxo pipefail
+
+  source "out/{{ hat }}.meta"
+  IMAGE_ID=$(cat "out/{{ hat }}.iid")
+  DIGEST=$(podman inspect "${IMAGE_ID#sha256:}" --format {{ "{{.Digest}}" }})
+
+  OUT_DIR="./out/{{ hat }}.iso/"
+  mkdir "$OUT_DIR" || true
+
+  sudo skopeo copy \
+    'containers-storage:[overlay@'$HOME'/.local/share/containers/storage+/run/user/'$(id -u)'/containers]'${IMAGE}@${DIGEST} \
+    'containers-storage:[overlay@/var/lib/containers/storage]'${IMAGE_TAG}
+  
+  sudo podman run \
+    --rm \
+    -it \
+    --privileged \
+    --security-opt label=type:unconfined_t \
+    -v "$OUT_DIR":/output \
+    --volume "./_tooling/anaconda-iso.toml:/config.toml:z" \
+    -v /var/lib/containers/storage:/var/lib/containers/storage \
+    quay.io/centos-bootc/bootc-image-builder:latest@sha256:754fc17718f977313885379e2c779066aba7d15af88fe04b486baec74759f574 \
+    --rootfs btrfs \
+    --verbose \
+    --type anaconda-iso \
+    ${IMAGE}@${DIGEST}
+  sudo chown $(id -u) -vR "$OUT_DIR"
+
 vm hat:
   #!/bin/env bash
   set -euxo pipefail
