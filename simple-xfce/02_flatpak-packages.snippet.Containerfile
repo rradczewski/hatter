@@ -1,1 +1,0 @@
-COPY ./simple-xfce/02_flatpak-packages/*.conf /usr/share/flatpak-install/
