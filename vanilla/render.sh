@@ -18,7 +18,7 @@ $(render_snippets "${BASE_DIR}/_common_flatpak_setup/")
 $(render_snippets "${BASE_DIR}/_common_desktop/")
 
 ARG VERSION="${VERSION}"
-ARG HAT="vanilla"
+ARG HAT="$HAT_NAME"
 $(render_snippets "${BASE_DIR}/_common_meta/")
 
 RUN ostree container commit

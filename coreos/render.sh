@@ -49,7 +49,7 @@ FROM $BASE_IMAGE
 $(render_snippets "${BASE_DIR}/_common/")
 
 ARG VERSION="${VERSION}"
-ARG HAT="coreos"
+ARG HAT="$HAT_NAME"
 $(render_snippets "${BASE_DIR}/_common_meta/")
 
 RUN ostree container commit

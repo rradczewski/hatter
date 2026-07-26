@@ -19,7 +19,7 @@ $(render_snippets "${BASE_DIR}/_common_desktop/")
 $(render_snippets "${BASE_DIR}/ibp14/")
 
 ARG VERSION="${VERSION}"
-ARG HAT="vanilla"
+ARG HAT="$HAT_NAME"
 $(render_snippets "${BASE_DIR}/_common_meta/")
 
 RUN ostree container commit
