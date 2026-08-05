@@ -1,0 +1,15 @@
+# Alt-Tab cycles windows, Super-Tab cycles applications
+[org/gnome/desktop/wm/keybindings]
+switch-applications=['<Super>Tab']
+switch-applications-backward=['<Shift><Super>Tab']
+switch-windows=['<Alt>Tab']
+switch-windows-backward=['<Shift><Alt>Tab']
+
+# Super+Return launches the terminal
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+name='Launch Terminal'
+command='ptyxis --new-window'
+binding='<Super>Return'

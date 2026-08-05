@@ -1,0 +1,3 @@
+[org/gnome/shell]
+enabled-extensions=['no-overview@fthx', 'gsconnect@andyholmes.github.io', 'appindicatorsupport@rgcjonas.gmail.com']
+disable-user-extensions=false

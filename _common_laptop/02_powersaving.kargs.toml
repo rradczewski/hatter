@@ -1,0 +1,1 @@
+kargs = ["pcie_aspm=force", "i915.enable_psr=1", "mem_sleep_default=deep"]

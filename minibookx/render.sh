@@ -16,6 +16,8 @@ FROM $BASE_IMAGE
 $(render_snippets "${BASE_DIR}/_common/")
 $(render_snippets "${BASE_DIR}/_common_flatpak_setup/")
 $(render_snippets "${BASE_DIR}/_common_desktop/")
+$(render_snippets "${BASE_DIR}/_common_desktop_gnome/")
+$(render_snippets "${BASE_DIR}/_common_laptop/")
 $(render_snippets "${BASE_DIR}/minibookx/")
 
 ARG VERSION="${VERSION}"

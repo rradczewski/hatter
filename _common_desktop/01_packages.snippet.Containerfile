@@ -23,11 +23,4 @@ RUN \
     just \
     gparted \
     smartmontools \
-    gnome-extensions-app \
-    gnome-shell-extension-appindicator \
-    gnome-shell-extension-no-overview \
-    gnome-shell-extension-gsconnect \
-    blueman-nautilus \
-    nautilus-gsconnect \
-    gnome-tweaks \
     @virtualization
