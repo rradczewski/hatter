@@ -1,0 +1,3 @@
+[org/gnome/desktop/input-sources]
+sources=[('xkb', 'us'), ('xkb', 'de')]
+xkb-options=['grp:caps_toggle']
