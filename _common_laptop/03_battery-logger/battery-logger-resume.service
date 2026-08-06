@@ -1,0 +1,10 @@
+[Unit]
+Description=Log battery info immediately on resume
+After=suspend.target hibernate.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/battery-logger.sh log
+
+[Install]
+WantedBy=suspend.target hibernate.target suspend-then-hibernate.target

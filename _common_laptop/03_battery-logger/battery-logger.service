@@ -1,0 +1,7 @@
+[Unit]
+Description=Log battery information to CSV
+After=suspend.target hibernate.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/battery-logger.sh log
