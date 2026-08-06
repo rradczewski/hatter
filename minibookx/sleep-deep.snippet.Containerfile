@@ -1,2 +1,2 @@
-ADD ./minibookx/sleep-deep.conf /etc/systemd/sleep.conf.d/sleep-deep.conf
+ADD ./minibookx/sleep-deep.conf /usr/lib/systemd/sleep.conf.d/sleep-deep.conf
 

@@ -14,15 +14,13 @@ TMP_DIR=/tmp/nextcloud_desktop/working_directory
 
 mkdir -p "$TMP_DIR" || true
 
-rpm --install --verbose --hash --nodeps $(dnf repoquery --location nextcloud-client-nautilus | head -n1)
+rpm --install --verbose --hash --nodeps $(dnf repoquery --location nextcloud-client-nautilus | sed -n '1p')
 
 NEXTCLOUD_CLIENT_RPM=$(dnf repoquery nextcloud-client --latest-limit=1 --queryformat "%{name}-%{evr}.%{arch}")
 
 dnf download --destdir "$TMP_DIR" "$NEXTCLOUD_CLIENT_RPM"
 
-rpm2cpio "${TMP_DIR}/${NEXTCLOUD_CLIENT_RPM}.rpm" \
-    | cpio -imvd \
-        -D / \
-        './usr/share/icons/hicolor/*'
+rpm2cpio "${TMP_DIR}/${NEXTCLOUD_CLIENT_RPM}.rpm" > "${TMP_DIR}/nextcloud.cpio"
+cpio -imvd -D / './usr/share/icons/hicolor/*' < "${TMP_DIR}/nextcloud.cpio"
 
 gtk-update-icon-cache -f /usr/share/icons/hicolor/

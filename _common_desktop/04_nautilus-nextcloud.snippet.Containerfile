@@ -10,4 +10,3 @@ RUN \
 	--mount=type=bind,source=./_common_desktop/04_nautilus-nextcloud.install.sh,target=/_common_desktop/04_nautilus-nextcloud.install.sh \
     --mount=type=tmpfs,dst=/tmp/nextcloud_desktop \
 	bash /_common_desktop/04_nautilus-nextcloud.install.sh
-

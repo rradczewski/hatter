@@ -9,7 +9,7 @@ ADD ./_common_flatpak_setup/01_flatpak-setup/flathub.flatpakrepo \
 
 ADD ./_common_flatpak_setup/01_flatpak-setup/flatpak-install@.service \
     ./_common_flatpak_setup/01_flatpak-setup/flatpak-permissions@.service \
-    /etc/systemd/system/
+    /usr/lib/systemd/system/
 
 COPY --chmod=0755 ./_common_flatpak_setup/01_flatpak-setup/flatpak-install-generator /usr/lib/systemd/system-generators/flatpak-install-generator
 COPY --chmod=0755 ./_common_flatpak_setup/01_flatpak-setup/flatpak-install-run       /usr/libexec/flatpak-install-run
