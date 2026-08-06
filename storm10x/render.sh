@@ -18,6 +18,7 @@ $(render_snippets "${BASE_DIR}/_common_flatpak_setup/")
 $(render_snippets "${BASE_DIR}/_common_desktop/")
 $(render_snippets "${BASE_DIR}/_common_desktop_gnome/")
 $(render_snippets "${BASE_DIR}/_common_laptop/")
+$(render_snippets "${BASE_DIR}/storm10x/")
 
 ARG VERSION="${VERSION}"
 ARG HAT="$HAT_NAME"
