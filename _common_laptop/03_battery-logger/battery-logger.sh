@@ -188,7 +188,7 @@ cmd_analyze() {
         s_time[idx]    = cur_time
         s_energy[idx]  = cur_energy
         s_n[idx]       = cur_n
-        s_max[idx]     = cur_max
+        s_max[idx]     = (cur_max < 0) ? 0 : cur_max
         s_max_ts[idx]  = cur_max_ts
         s_e_start[idx] = cur_e_start
         s_e_end[idx]   = cur_e_end
@@ -215,15 +215,31 @@ cmd_analyze() {
         # mark energy endpoints but do not extend a session on their own
         if (drain=="" || elapsed<=0) next
 
-        # charging/full breaks any running session and is tallied apart
+        # charging/full breaks any running session and is tallied apart.
+        # Remember that this row was charge-state so the NEXT row can tell
+        # whether its preceding interval was a real on-battery suspend or
+        # just the gap since we were last plugged in.
         if (status=="Charging" || status=="Full" || status=="Not charging") {
             flush_session()
             charge_n++
+            prev_status="charge"
             next
         }
 
         threshold = nominal*factor
         kind = (elapsed >= threshold) ? "suspend" : "active"
+
+        # A long interval whose PRIOR sample was charging/full is not a
+        # measurable suspend-discharge window: energy_full has usually just
+        # recalibrated and the gauge is unsettled. Book it as a gap, not a
+        # sleep session, and use this row only to anchor what follows.
+        if (kind=="suspend" && prev_status!="battery") {
+            flush_session()
+            gap_n++
+            gap_time += elapsed
+            prev_status="battery"   # this row becomes our trusted anchor
+            next                    # its gap-derived drain must not count
+        }
 
         # start a new session when the kind changes
         if (kind != cur_kind) {
@@ -237,11 +253,16 @@ cmd_analyze() {
         cur_end_ts = ts
         cur_e_end  = energy
         cur_time  += elapsed
-        cur_energy+= (drain*elapsed/3600)   # Wh consumed this interval
+        # A negative drain means energy_now rose this interval — physically
+        # impossible on battery, so it is gauge noise/recalibration. Count
+        # the time but not the (bogus) energy, and do not let it set a peak.
+        eff_drain = (drain < 0) ? 0 : drain
+        cur_energy+= (eff_drain*elapsed/3600)   # Wh consumed this interval
         cur_n++
-        if (drain > cur_max) { cur_max=drain; cur_max_ts=ts }
+        if (drain > 0 && drain > cur_max) { cur_max=drain; cur_max_ts=ts }
         if (wsrc!="" && cur_wake=="") cur_wake=wsrc
 
+        prev_status="battery"
         rows++
     }
     END {
@@ -254,6 +275,8 @@ cmd_analyze() {
         printf "Samples analyzed : %d\n", rows
         if (charge_n>0)
             printf "Charging intervals excluded : %d\n", charge_n
+        if (gap_n>0)
+            printf "Suspend gaps (unmeasurable) : %d  (%s total, spanning a charge->battery transition)\n", gap_n, fmt_dur(gap_time)
         printf "Time span        : %s  ->  %s  (%s)\n", first_ts, last_ts, fmt_dur(span)
         printf "Sessions found   : %d\n", sess_count
         printf "\n"
