@@ -154,7 +154,16 @@ cmd_test() {
 }
 
 # -------------------------------------------------------------------
-# subcommand: analyze  (human-readable report from the CSV)
+# subcommand: analyze  (per-session report from the CSV)
+#
+# Groups consecutive samples into contiguous "sessions". A session is a
+# maximal run of intervals of the same kind:
+#   - suspend : the interval preceding the row is >= NOMINAL*SUSPEND_FACTOR
+#   - active  : the interval preceding the row is <  NOMINAL*SUSPEND_FACTOR
+# Charging/Full/Not-charging intervals break the current session (energy
+# accounting during charge is not comparable) and are reported separately.
+# Each session is printed as an aligned line-item block so two sleep
+# cycles or two awake cycles can be compared directly.
 # -------------------------------------------------------------------
 cmd_analyze() {
     if [[ ! -s "$LOGFILE" ]]; then
@@ -163,89 +172,164 @@ cmd_analyze() {
     fi
 
     awk -F',' -v nominal="$NOMINAL_INTERVAL" -v factor="$SUSPEND_FACTOR" '
+    function fmt_dur(s,    h,m,sec,out) {
+        s=int(s+0.5); h=int(s/3600); s-=h*3600; m=int(s/60); sec=s-m*60
+        if (h>0) return sprintf("%dh%02dm", h, m)
+        if (m>0) return sprintf("%dm%02ds", m, sec)
+        return sprintf("%ds", sec)
+    }
+    # flush the currently-accumulating session to the sessions[] arrays
+    function flush_session(    idx) {
+        if (cur_kind=="" || cur_n==0) { cur_kind=""; return }
+        idx = ++sess_count
+        s_kind[idx]    = cur_kind
+        s_start[idx]   = cur_start_ts
+        s_end[idx]     = cur_end_ts
+        s_time[idx]    = cur_time
+        s_energy[idx]  = cur_energy
+        s_n[idx]       = cur_n
+        s_max[idx]     = cur_max
+        s_max_ts[idx]  = cur_max_ts
+        s_e_start[idx] = cur_e_start
+        s_e_end[idx]   = cur_e_end
+        s_wake[idx]    = cur_wake
+        # reset accumulator
+        cur_kind=""; cur_n=0; cur_time=0; cur_energy=0
+        cur_max=-1e9; cur_max_ts=""; cur_wake=""
+    }
     NR==1 { next }  # header
     {
-        status=$3; energy=$4; pct=$10; health=$11; cycles=$12
+        ts=$1; status=$3; energy=$4; pct=$10; health=$11; cycles=$12
         efull=$5; edesign=$6
+        wsrc=$18
         elapsed=$20+0; drain=$21
         epoch=$2
 
-        # track overall span & battery snapshots
-        if (first_epoch=="") { first_epoch=epoch; first_energy=energy; first_ts=$1 }
-        last_epoch=epoch; last_energy=energy; last_ts=$1
+        # overall span & latest battery snapshot
+        if (first_epoch=="") { first_epoch=epoch; first_energy=energy; first_ts=ts }
+        last_epoch=epoch; last_energy=energy; last_ts=ts
         last_pct=pct; last_health=health; last_cycles=cycles
         last_efull=efull; last_edesign=edesign
 
-        # need a valid drain and elapsed to classify
+        # rows without a usable interval cannot be classified; they still
+        # mark energy endpoints but do not extend a session on their own
         if (drain=="" || elapsed<=0) next
 
-        # only count on-battery intervals; charging/full skew the averages
+        # charging/full breaks any running session and is tallied apart
         if (status=="Charging" || status=="Full" || status=="Not charging") {
-            skipped++
+            flush_session()
+            charge_n++
             next
         }
 
         threshold = nominal*factor
-        if (elapsed >= threshold) {
-            # suspend window
-            sus_energy += (drain*elapsed/3600)   # Wh consumed
-            sus_time   += elapsed
-            sus_n++
-            if (drain > sus_max) { sus_max=drain; sus_max_ts=$1 }
-        } else {
-            # active window
-            act_energy += (drain*elapsed/3600)
-            act_time   += elapsed
-            act_n++
-            if (drain > act_max) { act_max=drain; act_max_ts=$1 }
+        kind = (elapsed >= threshold) ? "suspend" : "active"
+
+        # start a new session when the kind changes
+        if (kind != cur_kind) {
+            flush_session()
+            cur_kind    = kind
+            cur_start_ts= ts
+            cur_e_start = energy
+            cur_max     = -1e9
         }
+
+        cur_end_ts = ts
+        cur_e_end  = energy
+        cur_time  += elapsed
+        cur_energy+= (drain*elapsed/3600)   # Wh consumed this interval
+        cur_n++
+        if (drain > cur_max) { cur_max=drain; cur_max_ts=ts }
+        if (wsrc!="" && cur_wake=="") cur_wake=wsrc
+
         rows++
     }
     END {
+        flush_session()
         if (rows==0) { print "No usable data rows."; exit }
 
         span = last_epoch - first_epoch
         printf "Battery Log Analysis\n"
         printf "====================\n"
         printf "Samples analyzed : %d\n", rows
-        if (skipped>0)
-            printf "Skipped (charge) : %d intervals excluded (charging/full)\n", skipped
-        printf "Time span        : %s  ->  %s  (%.1f h)\n", first_ts, last_ts, span/3600
+        if (charge_n>0)
+            printf "Charging intervals excluded : %d\n", charge_n
+        printf "Time span        : %s  ->  %s  (%s)\n", first_ts, last_ts, fmt_dur(span)
+        printf "Sessions found   : %d\n", sess_count
         printf "\n"
 
         printf "Battery health\n"
         printf "  Charge now     : %s%%\n", last_pct
-        printf "  Capacity health: %s%% of design", last_health
-        printf "  (%.1f of %.1f Wh)\n", last_efull, last_edesign
+        printf "  Capacity health: %s%% of design (%.1f of %.1f Wh)\n", last_health, last_efull, last_edesign
         printf "  Cycle count    : %s\n", last_cycles
         printf "\n"
 
-        printf "Active operation (intervals < %d s)\n", nominal*factor
-        if (act_n>0) {
-            printf "  Windows        : %d\n", act_n
-            printf "  Avg power draw : %.3f W\n", act_energy/(act_time/3600)
-            printf "  Energy used    : %.2f Wh over %.2f h\n", act_energy, act_time/3600
-            printf "  Peak draw      : %.3f W  (at %s)\n", act_max, act_max_ts
-        } else { printf "  (no active intervals)\n" }
-        printf "\n"
-
-        printf "Suspend / deep sleep (intervals >= %d s)\n", nominal*factor
-        if (sus_n>0) {
-            printf "  Windows        : %d\n", sus_n
-            printf "  Avg power draw : %.3f W\n", sus_energy/(sus_time/3600)
-            printf "  Energy used    : %.2f Wh over %.2f h\n", sus_energy, sus_time/3600
-            printf "  Worst window   : %.3f W  (resume at %s)\n", sus_max, sus_max_ts
-            self_disch = sus_energy/(sus_time/3600)
-            if (last_edesign+0 > 0) {
-                printf "  Est. full-charge suspend life: %.1f h\n", last_edesign/self_disch
+        # ---- all cycles, grouped by kind, as line items ---------------
+        # Every awake/sleep cycle in the log is listed. "Avg delta" on each
+        # cycle compares it against the previous cycle of the same kind, so
+        # you can read any two cycles against each other down the column.
+        # Awake cycles
+        na=0; for (i=1;i<=sess_count;i++) if (s_kind[i]=="active") ai[++na]=i
+        if (na>=1) {
+            printf "Awake cycles (%d)\n", na
+            prev_avg=""
+            for (k=1;k<=na;k++) {
+                idx=ai[k]
+                avg=s_energy[idx]/(s_time[idx]/3600)
+                printf "  Awake #%d\n", k
+                printf "    %-16s %s  ->  %s\n", "Window:",   s_start[idx], s_end[idx]
+                printf "    %-16s %s\n",         "Duration:", fmt_dur(s_time[idx])
+                printf "    %-16s %d\n",         "Samples:",  s_n[idx]
+                printf "    %-16s %.3f W\n",     "Avg draw:", avg
+                printf "    %-16s %.2f Wh\n",    "Energy used:", s_energy[idx]
+                printf "    %-16s %.3f W  (at %s)\n", "Peak draw:", s_max[idx], s_max_ts[idx]
+                printf "    %-16s %.4f -> %.4f Wh\n", "Battery span:", s_e_start[idx], s_e_end[idx]
+                if (prev_avg!="" && prev_avg>0)
+                    printf "    %-16s %+.1f%% vs Awake #%d\n", "Avg draw delta:", (avg-prev_avg)/prev_avg*100, k-1
+                prev_avg=avg
             }
-        } else { printf "  (no suspend windows detected)\n" }
-        printf "\n"
+            printf "\n"
+        }
+        # Sleep cycles
+        ns=0; for (i=1;i<=sess_count;i++) if (s_kind[i]=="suspend") si[++ns]=i
+        if (ns>=1) {
+            printf "Sleep cycles (%d)\n", ns
+            prev_avg=""
+            for (k=1;k<=ns;k++) {
+                idx=si[k]
+                avg=s_energy[idx]/(s_time[idx]/3600)
+                printf "  Sleep #%d\n", k
+                printf "    %-16s %s  ->  %s\n", "Window:",   s_start[idx], s_end[idx]
+                printf "    %-16s %s\n",         "Duration:", fmt_dur(s_time[idx])
+                printf "    %-16s %d\n",         "Samples:",  s_n[idx]
+                printf "    %-16s %.3f W\n",     "Avg draw:", avg
+                printf "    %-16s %.2f Wh\n",    "Energy used:", s_energy[idx]
+                printf "    %-16s %.3f W  (at %s)\n", "Peak draw:", s_max[idx], s_max_ts[idx]
+                printf "    %-16s %.4f -> %.4f Wh\n", "Battery span:", s_e_start[idx], s_e_end[idx]
+                if (s_wake[idx]!="")
+                    printf "    %-16s %s\n",     "Wake source:", s_wake[idx]
+                if (last_edesign+0 > 0 && avg>0)
+                    printf "    %-16s %s\n",     "Est. sleep life:", fmt_dur(last_edesign/avg*3600)
+                if (prev_avg!="" && prev_avg>0)
+                    printf "    %-16s %+.1f%% vs Sleep #%d\n", "Avg draw delta:", (avg-prev_avg)/prev_avg*100, k-1
+                prev_avg=avg
+            }
+            printf "\n"
+        }
 
-        printf "Overall\n"
+        # ---- aggregate totals -----------------------------------------
+        for (i=1;i<=sess_count;i++) {
+            if (s_kind[i]=="active") { tot_act_e+=s_energy[i]; tot_act_t+=s_time[i] }
+            else                     { tot_sus_e+=s_energy[i]; tot_sus_t+=s_time[i] }
+        }
+        printf "Totals\n"
+        if (tot_act_t>0)
+            printf "  %-16s %.2f Wh over %s  (avg %.3f W)\n", "Awake:", tot_act_e, fmt_dur(tot_act_t), tot_act_e/(tot_act_t/3600)
+        if (tot_sus_t>0)
+            printf "  %-16s %.2f Wh over %s  (avg %.3f W)\n", "Sleep:", tot_sus_e, fmt_dur(tot_sus_t), tot_sus_e/(tot_sus_t/3600)
         net = first_energy - last_energy
         if (span>0)
-            printf "  Net avg draw   : %.3f W  (%.2f Wh over %.1f h)\n", net/(span/3600), net, span/3600
+            printf "  %-16s %.3f W  (%.2f Wh over %s)\n", "Net avg draw:", net/(span/3600), net, fmt_dur(span)
     }' "$LOGFILE"
 }
 
@@ -256,7 +340,9 @@ Usage: $(basename "$0") {log|test|analyze}
 
   log      Collect one sample and append it to $LOGFILE
   test     Collect one sample and print it human-readably (no write)
-  analyze  Summarize the CSV: active vs suspend power draw, battery health
+  analyze  Per-cycle report: every awake and sleep cycle in the log as
+           aligned line items, each with a delta vs the previous cycle
+           of the same kind
 EOF
     exit 1
 }
