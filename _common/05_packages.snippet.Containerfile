@@ -8,7 +8,16 @@ RUN \
     --mount=type=cache,dst=/var/cache/dnf \
     --mount=type=cache,dst=/var/cache/libdnf5 \
     dnf install -y \
-    btrfs-assistant \
-    snapper \
-    google-cousine-fonts \
-    gparted
+    podman-compose \
+    pv \
+    mbuffer \
+    lm_sensors \
+    powertop \
+    htop \
+    tmux \
+    vim \
+    fd-find \
+    ripgrep \
+    just \
+    smartmontools \
+    @virtualization
