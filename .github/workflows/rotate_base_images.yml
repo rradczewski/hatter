@@ -22,6 +22,7 @@ jobs:
           - quay.io/fedora/fedora-silverblue:44-x86_64
           - quay.io/fedora/fedora-coreos:next
           - quay.io/fedora/fedora-bootc:44-x86_64
+          - quay.io/fedora/fedora-sway-atomic:44-x86_64
     runs-on: ubuntu-latest
     steps:
       - name: Install just
