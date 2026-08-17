@@ -10,5 +10,6 @@ RUN \
     dnf install -y \
     btrfs-assistant \
     snapper \
+    libinput-utils \
     google-cousine-fonts \
     gparted
