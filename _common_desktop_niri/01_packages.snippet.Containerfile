@@ -9,4 +9,5 @@ RUN \
     lxqt-niri-session \
     wl-clipboard \
     xclip \
-    swaylock
+    swaylock \
+    kdeconnectd
