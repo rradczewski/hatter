@@ -6,6 +6,7 @@ RUN \
     niri-settings \
     noctalia \
     @lxqt-desktop \
+    lxqt-niri-session \
     wl-clipboard \
     xclip \
     swaylock
