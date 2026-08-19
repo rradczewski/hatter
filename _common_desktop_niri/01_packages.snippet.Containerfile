@@ -5,7 +5,6 @@ RUN \
         avahi \
         brightnessctl \
         flatpak \
-        gtkgreet \
         gnome-disk-utility \
         gnome-keyring \
         gnome-keyring-pam \
