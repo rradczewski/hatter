@@ -10,7 +10,6 @@ RUN \
         gnome-keyring \
         gnome-keyring-pam \
         gnome-system-monitor \
-        kdeconnectd \
         mesa-dri-drivers \
         mesa-vulkan-drivers \
         nautilus \
@@ -23,4 +22,12 @@ RUN \
         system-config-printer \
         wl-clipboard \
         xclip \
-        xdg-desktop-portal-gnome
+        xdg-desktop-portal-gtk \
+        xdg-desktop-portal-wlr
+
+RUN \
+    --mount=type=cache,dst=/var/cache/dnf \
+    --mount=type=cache,dst=/var/cache/libdnf5 \
+    dnf install -y \
+        --setopt=install_weak_deps=False \
+        kdeconnectd
