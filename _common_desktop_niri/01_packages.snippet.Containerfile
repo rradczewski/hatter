@@ -5,6 +5,7 @@ RUN \
         avahi \
         brightnessctl \
         flatpak \
+        gcr \
         gnome-disk-utility \
         gnome-keyring \
         gnome-keyring-pam \
@@ -16,10 +17,12 @@ RUN \
         niri-settings \
         noctalia \
         plymouth-system-theme \
+        power-profiles-daemon \
         ptyxis \
         seahorse \
         system-config-printer \
         tuigreet \
+        upower \
         wl-clipboard \
         xclip \
         xdg-desktop-portal-gnome \
