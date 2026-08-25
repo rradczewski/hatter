@@ -19,8 +19,10 @@ RUN \
         ptyxis \
         seahorse \
         system-config-printer \
+        tuigreet \
         wl-clipboard \
         xclip \
+        xdg-desktop-portal-gnome \
         xdg-desktop-portal-gtk \
         xdg-desktop-portal-wlr
 

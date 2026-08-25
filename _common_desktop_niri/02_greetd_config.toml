@@ -2,5 +2,5 @@
 vt = 1
 
 [default_session]
-command = "cage -s -- gtkgreet"
+command = "tuigreet --remember --time --user-menu --cmd niri-session --theme 'border=lightmagenta;text=cyan;prompt=lightmagenta;action=lightcyan;container=black;input=white'"
 user = "greeter"
