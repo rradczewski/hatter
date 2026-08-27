@@ -1,2 +1,2 @@
 RUN mkdir -p /etc/pipewire/pipewire.conf.d && \
-    ln -sf /dev/null /etc/pipewire/pipewire.conf.d/50-raop-discover.conf
+    printf 'context.properties = {\n    module.raop = false\n}\n' > /etc/pipewire/pipewire.conf.d/99-disable-raop.conf
