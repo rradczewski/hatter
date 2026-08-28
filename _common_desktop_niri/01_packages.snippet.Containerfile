@@ -24,6 +24,7 @@ RUN \
         tuigreet \
         upower \
         wl-clipboard \
+        wl-mirror \
         xclip \
         xdg-desktop-portal-gnome \
         xdg-desktop-portal-gtk \
