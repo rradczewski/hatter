@@ -21,7 +21,6 @@ jobs:
         image:
           - quay.io/fedora/fedora-silverblue:44-x86_64
           - quay.io/fedora/fedora-coreos:next
-          - quay.io/fedora-ostree-desktops/cosmic-atomic:44
           - quay.io/fedora-ostree-desktops/base-atomic:44
     runs-on: ubuntu-latest
     steps:
