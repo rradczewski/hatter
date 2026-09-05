@@ -1,0 +1,45 @@
+#!/bin/sh
+# systemd user-environment-generator: ensures /usr/share/xdg-overrides sits in
+# XDG_DATA_DIRS with priority: per-user dirs (under $HOME) > this override dir
+# > everything else (flatpak system exports, /usr/local/share, /usr/share...).
+#
+# Installed with a high sort-order prefix (95-) so it runs after other
+# generators -- including the built-in environment.d generator and any
+# vendor/flatpak-provided generator -- and therefore sees their combined
+# output before recomputing the final value. See systemd.generator(7).
+
+OVERRIDE_DIR="/usr/share/xdg-overrides"
+
+value="$XDG_DATA_DIRS"
+if [ -z "$value" ]; then
+    value="/usr/local/share/:/usr/share/"
+fi
+
+old_ifs=$IFS
+IFS=:
+set -f
+set -- $value
+set +f
+IFS=$old_ifs
+
+user_dirs=""
+global_dirs=""
+for entry in "$@"; do
+    [ -z "$entry" ] && continue
+    [ "$entry" = "$OVERRIDE_DIR" ] && continue
+    if [ -n "$HOME" ]; then
+        case "$entry" in
+            "$HOME"|"$HOME"/*)
+                user_dirs="${user_dirs:+$user_dirs:}$entry"
+                continue
+                ;;
+        esac
+    fi
+    global_dirs="${global_dirs:+$global_dirs:}$entry"
+done
+
+result="$OVERRIDE_DIR"
+[ -n "$user_dirs" ] && result="$user_dirs:$result"
+[ -n "$global_dirs" ] && result="$result:$global_dirs"
+
+echo "XDG_DATA_DIRS=$result"
