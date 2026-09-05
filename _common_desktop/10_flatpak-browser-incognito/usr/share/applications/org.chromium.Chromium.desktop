@@ -1,8 +1,6 @@
 [Desktop Entry]
 Version=1.0
 Name=Chromium
-# Only KDE 4 seems to use GenericName, so we reuse the KDE strings.
-# From Ubuntu's language-pack-kde-XX-base packages, version 9.04-20090413.
 GenericName=Web Browser
 GenericName[ar]=متصفح الشبكة
 GenericName[bg]=Уеб браузър
@@ -44,7 +42,6 @@ GenericName[uk]=Навігатор Тенет
 GenericName[zh_CN]=网页浏览器
 GenericName[zh_HK]=網頁瀏覽器
 GenericName[zh_TW]=網頁瀏覽器
-# Not translated in KDE, from Epiphany 2.26.1-0ubuntu1.
 GenericName[bn]=ওয়েব ব্রাউজার
 GenericName[fil]=Web Browser
 GenericName[hr]=Web preglednik
@@ -54,7 +51,6 @@ GenericName[sk]=WWW prehliadač
 GenericName[sr]=Интернет прегледник
 GenericName[te]=మహాతల అన్వేషి
 GenericName[vi]=Bộ duyệt Web
-# Gnome and KDE 3 uses Comment.
 Comment=Access the Internet
 Comment[ar]=الدخول إلى الإنترنت
 Comment[bg]=Достъп до интернет
@@ -105,7 +101,7 @@ Comment[vi]=Truy cập Internet
 Comment[zh_CN]=访问互联网
 Comment[zh_HK]=連線到網際網路
 Comment[zh_TW]=連線到網際網路
-Exec=/app/bin/chromium --incognito %U
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=/app/bin/chromium --file-forwarding org.chromium.Chromium --incognito @@u %U @@
 StartupWMClass=chromium-browser
 StartupNotify=true
 Terminal=false
@@ -115,8 +111,8 @@ Categories=Network;WebBrowser;
 Keywords=chrome;internet;google;
 MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;
 Actions=new-window;new-private-window;
-# Used by Endless
 X-Flatpak-RenamedFrom=chromium-browser.desktop;
+X-Flatpak=org.chromium.Chromium
 
 [Desktop Action new-window]
 Name=New Window
@@ -170,7 +166,7 @@ Name[uk]=Нове вікно
 Name[vi]=Cửa sổ Mới
 Name[zh_CN]=新建窗口
 Name[zh_TW]=開新視窗
-Exec=/app/bin/chromium
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=/app/bin/chromium org.chromium.Chromium --incognito
 
 [Desktop Action new-private-window]
 Name=New Incognito Window
@@ -222,4 +218,4 @@ Name[uk]=Нове вікно в режимі анонімного перегля
 Name[vi]=Cửa sổ ẩn danh mới
 Name[zh_CN]=新建隐身窗口
 Name[zh_TW]=新增無痕式視窗
-Exec=/app/bin/chromium --incognito
+Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=/app/bin/chromium org.chromium.Chromium --incognito
