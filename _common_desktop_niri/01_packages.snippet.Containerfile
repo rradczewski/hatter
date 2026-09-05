@@ -16,6 +16,8 @@ RUN \
         niri \
         niri-settings \
         noctalia \
+        qgnomeplatform-qt5 \
+        qgnomeplatform-qt6 \
         plymouth-system-theme \
         power-profiles-daemon \
         ptyxis \
