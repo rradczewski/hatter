@@ -42,3 +42,21 @@ for theme in $ADI_PACK_3; do ADI_MEMBERS+=("${ADI_PREFIX}/pack_3/${theme}"); don
 for theme in $ADI_PACK_4; do ADI_MEMBERS+=("${ADI_PREFIX}/pack_4/${theme}"); done
 
 tar xzf "$ADI_ARCHIVE" -C "$THEMES_DIR" --strip-components=2 "${ADI_MEMBERS[@]}"
+
+# These themes hardcode centering math to display index 0 (Window.GetWidth(0) /
+# GetHeight(0)) while positioning via the unindexed Window.GetX()/GetY(), which
+# return the origin of the combined canvas across *all* displays. On a
+# multi-monitor / external-display setup that mismatch draws the sprite near
+# the top-left instead of centered. The unindexed Window.GetWidth()/GetHeight()
+# calls return the same combined-canvas size Window.GetX()/GetY() already use,
+# so switching to those fixes centering without changing single-monitor output.
+for member in "${ADI_MEMBERS[@]}"; do
+    theme="${THEMES_DIR}/${member##*/}"
+    for script_file in "$theme"/*.script; do
+        [ -e "$script_file" ] || continue
+        sed -i \
+            -e 's/Window\.GetWidth(0)/Window.GetWidth()/g' \
+            -e 's/Window\.GetHeight(0)/Window.GetHeight()/g' \
+            "$script_file"
+    done
+done

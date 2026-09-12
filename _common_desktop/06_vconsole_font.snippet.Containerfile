@@ -9,3 +9,9 @@ RUN \
     else \
         echo 'FONT=ter-v32b' >> /etc/vconsole.conf; \
     fi
+
+# The early boot log (before the real root takes over) runs off the font baked
+# into the initramfs, not /etc/vconsole.conf on disk - without regenerating it
+# here, that text stays on the stock small font until the next kernel update
+# triggers a rebuild.
+RUN dracut -f --regenerate-all

@@ -19,4 +19,5 @@ RUN \
     snapper \
     libinput-utils \
     google-cousine-fonts \
-    gparted
+    gparted \
+    yubikey-manager-qt

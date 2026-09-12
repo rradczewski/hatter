@@ -16,6 +16,9 @@ RUN \
     htop \
     tmux \
     vim \
+    yubikey-manager \
+    pam-u2f \
+    pam_yubico \
     fd-find \
     ripgrep \
     just \
