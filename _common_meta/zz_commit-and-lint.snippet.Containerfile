@@ -1,0 +1,1 @@
+RUN bootc container lint && ostree container commit

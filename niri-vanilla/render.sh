@@ -23,7 +23,5 @@ $(render_snippets "${BASE_DIR}/${HAT_NAME}/")
 ARG VERSION="${VERSION}"
 ARG HAT="$HAT_NAME"
 $(render_snippets "${BASE_DIR}/_common_meta/")
-
-RUN ostree container commit
 EOF
 }
