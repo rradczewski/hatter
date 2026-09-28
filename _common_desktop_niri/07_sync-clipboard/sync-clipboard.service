@@ -1,0 +1,13 @@
+[Unit]
+Description=Bridge clipboard content between the Wayland and X11 (XWayland/spice-vdagent) clipboards
+After=niri-session.target
+PartOf=niri-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sync-clipboard --daemon
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=niri-session.target
