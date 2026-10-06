@@ -1,7 +1,7 @@
 [Unit]
 Description=Resize niri's virtual outputs to the VM viewer window, scaled down for HiDPI hosts
-After=niri-session.target
-PartOf=niri-session.target
+After=graphical-session.target
+PartOf=graphical-session.target
 ConditionVirtualization=vm
 
 [Service]
@@ -12,4 +12,4 @@ Restart=on-failure
 RestartSec=2
 
 [Install]
-WantedBy=niri-session.target
+WantedBy=graphical-session.target
