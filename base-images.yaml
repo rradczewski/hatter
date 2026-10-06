@@ -6,4 +6,3 @@ images:
   - quay.io/fedora-ostree-desktops/base-atomic:43
   - quay.io/fedora-ostree-desktops/base-atomic:44
   - quay.io/fedora-ostree-desktops/base-atomic:45
-  - quay.io/fedora/fedora-coreos:next

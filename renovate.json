@@ -35,6 +35,13 @@
       ],
       "minimumReleaseAge": null,
       "automerge": false
+    },
+    {
+      "matchPackageNames": [
+        "quay.io/fedora/fedora-coreos"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d{8})\\.(?<compatibility>\\d+)\\.(?<patch>\\d+)$",
+      "minimumReleaseAge": "7 days"
     }
   ],
   "customManagers": [

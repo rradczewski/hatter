@@ -132,7 +132,6 @@ discover_base_images: (_ensure "yq" YQ_VERSION)
   IMAGES=$(
     maintained_tags quay.io/fedora/fedora-silverblue -x86_64
     maintained_tags quay.io/fedora-ostree-desktops/base-atomic ""
-    echo quay.io/fedora/fedora-coreos:next
   )
 
   IMAGES="$IMAGES" yq -n \
