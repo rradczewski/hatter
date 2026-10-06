@@ -13,15 +13,43 @@ env:
   REGISTRY_PASSWORD: ${{ github.token }}
 
 jobs:
+  discover-base-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Install just
+        run: |
+          sudo apt-get update
+          sudo apt-get install just --yes
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - name: Install yq
+        run: just setup-install-yq
+      - name: Discover base images
+        run: just discover_base_images
+      - name: Commit base images
+        run: |
+          set -euxo pipefail
+          if git diff --quiet -- base-images.yaml; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add base-images.yaml
+          git commit -m "Update mirrored base images"
+          git push
+      - id: set-matrix
+        run: echo "matrix=$(just list-as-json list_base_images)" | tee "$GITHUB_OUTPUT"
+
   rotate-base-images:
+    needs: [discover-base-images]
     strategy:
       max-parallel: 1
       fail-fast: false
       matrix:
-        image:
-          - quay.io/fedora/fedora-silverblue:44-x86_64
-          - quay.io/fedora/fedora-coreos:next
-          - quay.io/fedora-ostree-desktops/base-atomic:44
+        image: ${{ fromJson(needs.discover-base-images.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
       - name: Install just

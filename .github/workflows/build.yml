@@ -65,47 +65,19 @@ jobs:
     outputs:
       registry-path: ${{ steps.push.outputs.registry-path }}
     steps:
-      - name: Setup cosign
-        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
-        with:
-          cosign-release: "v3.1.3"
-
       - name: Install just
         run: |
           sudo apt-get update
           sudo apt-get install just --yes
 
-      - name: Install trunkver
-        run: |
-          set -x
-          TMP_DIR=$(mktemp -d)
-          cd "$TMP_DIR"
-          curl --proto =https --tlsv1.2 -sSfL \
-            -o trunkver_linux_amd64 "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/trunkver_linux_amd64" \
-            -o trunkver_linux_amd64.cosign.bundle "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/trunkver_linux_amd64.cosign.bundle" \
-            -o checksums.txt "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/checksums.txt" \
-            -o checksums.txt.cosign.bundle "https://github.com/crftd-tech/trunkver/releases/download/1.1.3-20260513201613-gf9fdd7b-25823944761-1/checksums.txt.cosign.bundle"
-
-          cosign verify-blob \
-            "checksums.txt" \
-            --bundle "checksums.txt.cosign.bundle" \
-            --certificate-identity=https://github.com/crftd-tech/trunkver/.github/workflows/build.yml@refs/heads/main \
-            --certificate-oidc-issuer=https://token.actions.githubusercontent.com
-
-          shasum --algorithm 256 --ignore-missing --check checksums.txt
-
-          cosign verify-blob \
-            "trunkver_linux_amd64" \
-            --bundle "trunkver_linux_amd64.cosign.bundle" \
-            --certificate-identity=https://github.com/crftd-tech/trunkver/.github/workflows/build.yml@refs/heads/main \
-            --certificate-oidc-issuer=https://token.actions.githubusercontent.com
-          
-          mkdir -p "$HOME/.local/bin/" || true
-          cp "trunkver_linux_amd64" "$HOME/.local/bin/trunkver"
-          chmod a+x "$HOME/.local/bin/trunkver"
-
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Install cosign
+        run: just setup-install-cosign
+
+      - name: Install trunkver
+        run: just setup-install-trunkver
 
       - name: Log in to ghcr.io
         uses: redhat-actions/podman-login@50c2d9a331bb67c8fdab99b86455fad05e2e3252 # v2

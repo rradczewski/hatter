@@ -33,6 +33,7 @@
       "matchUpdateTypes": [
         "major"
       ],
+      "minimumReleaseAge": null,
       "automerge": false
     }
   ],
