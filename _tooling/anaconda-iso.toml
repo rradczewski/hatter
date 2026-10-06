@@ -1,2 +1,4 @@
 [customizations.installer.kickstart]
-contents = ""
+contents = """
+keyboard --vckeymap=us --xlayouts='us','de' --switch='grp:caps_toggle'
+"""
