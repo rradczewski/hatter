@@ -10,7 +10,6 @@ RUN \
         gnome-keyring \
         gnome-keyring-pam \
         gnome-system-monitor \
-        jq \
         mesa-dri-drivers \
         mesa-vulkan-drivers \
         nautilus \

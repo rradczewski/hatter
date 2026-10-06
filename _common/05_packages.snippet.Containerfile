@@ -22,5 +22,6 @@ RUN \
     fd-find \
     ripgrep \
     just \
+    jq \
     smartmontools \
     @virtualization
