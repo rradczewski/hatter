@@ -1,0 +1,15 @@
+[Unit]
+Description=Resize niri's virtual outputs to the VM viewer window, scaled down for HiDPI hosts
+After=niri-session.target
+PartOf=niri-session.target
+ConditionVirtualization=vm
+
+[Service]
+EnvironmentFile=-/etc/vm-display-fit.conf
+Type=simple
+ExecStart=/usr/bin/vm-display-fit --daemon
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=niri-session.target
